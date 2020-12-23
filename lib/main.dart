@@ -4,7 +4,7 @@ import 'package:project_1/six_jars_screen.dart';
 import 'package:project_1/splash_screen.dart';
 
 var routes = <String, WidgetBuilder>{
-  // "/home": (BuildContext context) => HomeScreen(),
+  "/home": (BuildContext context) => SixJarsRoute(),
   // "/intro": (BuildContext context) => IntroScreen(),
 };
 

@@ -38,6 +38,13 @@ dev_dependencies:
 
 # The following section is specific to Flutter.
 flutter:
+
+  fonts:
+    - family: BPeople
+      fonts:
+        - asset: asset/fonts/BeautifulPeoplePersonalUse_1.ttf
+        - asset: asset/fonts/BeautifulPeoplePersonalUse_2.ttf
+          weight: 500
   assets:
     - asset/icon/Rountiner_logo.png
 

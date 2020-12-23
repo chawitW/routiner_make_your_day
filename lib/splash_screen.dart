@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:project_1/six_jars_screen.dart';
+import 'package:project_1/my_navigator.dart';
 
 void main() => runApp(MaterialApp(
       theme:
@@ -21,8 +22,11 @@ class _SplashScreenState extends State<SplashScreen> {
     super.initState();
     Timer(
         Duration(seconds: 3),
-        () => Navigator.push(
+        // () => MyNavigator.goToHome(context));
+
+        () => Navigator.pushReplacement(
             context, MaterialPageRoute(builder: (context) => SixJarsRoute())));
+
     // () => print("\n\n\nSplahScreen!!!!\n\n\n")); //after SplashSceen
   }
 
@@ -42,20 +46,36 @@ class _SplashScreenState extends State<SplashScreen> {
                   flex: 2,
                   child: Container(
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        CircleAvatar(
-                          backgroundColor: Colors.white,
-                          radius: 50.0,
-                          child: Icon(
-                            Icons.shopping_cart,
-                            color: Colors.greenAccent,
-                            size: 50.0,
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: <Widget>[
+                          Container(
+                            child: Image.asset(
+                              'asset/icon/Rountiner_logo.png',
+                              width: MediaQuery.of(context).size.width * 0.35,
+                              fit: BoxFit.cover,
+                            ),
                           ),
-                        )
-                      ],
+                          Padding(padding: EdgeInsets.only(bottom: 20.0))
+                        ]),
+                  )),
+              Expanded(
+                flex: 1,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: <Widget>[
+                    Text(
+                      "Routiner",
+                      style: TextStyle(
+                          color: Color(0xffFDDB3A),
+                          fontSize: 20.0,
+                          fontFamily: 'BPeople'),
                     ),
-                  ))
+                    Padding(
+                      padding: EdgeInsets.only(bottom: 20.0),
+                    ),
+                  ],
+                ),
+              )
             ],
           )
         ],
