@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(MaterialApp(home: SixJarsRoute()));
+  runApp(MaterialApp(home: ToDoRoute()));
 }
 
-class SixJarsRoute extends StatelessWidget {
+class ToDoRoute extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Text("Six Jars Page"),
+      body: Text("To Do Page"),
       backgroundColor: Color(0xff52575D),
     );
   }

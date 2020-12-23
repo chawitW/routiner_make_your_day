@@ -1,8 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:project_1/six_jars_screen.dart';
-import 'package:project_1/my_navigator.dart';
+import 'package:project_1/main.dart';
 
 void main() => runApp(MaterialApp(
       theme:
@@ -25,7 +24,7 @@ class _SplashScreenState extends State<SplashScreen> {
         // () => MyNavigator.goToHome(context));
 
         () => Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => SixJarsRoute())));
+            context, MaterialPageRoute(builder: (context) => HomePage())));
 
     // () => print("\n\n\nSplahScreen!!!!\n\n\n")); //after SplashSceen
   }

@@ -45,8 +45,16 @@ flutter:
         - asset: asset/fonts/BeautifulPeoplePersonalUse_1.ttf
         - asset: asset/fonts/BeautifulPeoplePersonalUse_2.ttf
           weight: 500
+
+    - family:  MyFlutterApp
+      fonts:
+       - asset: asset/fonts/MyFlutterApp.ttf
+          
   assets:
     - asset/icon/Rountiner_logo.png
+    - asset/icon/Planner.png
+    - asset/icon/Ledger.png
+    - asset/icon/ToDo.png
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
