@@ -5,6 +5,7 @@ import 'package:project_1/planner_screen.dart';
 import 'package:project_1/presentation/my_flutter_app_icons.dart';
 import 'package:project_1/six_jars_screen.dart';
 import 'package:project_1/to_do_screen.dart';
+import 'package:project_1/setting_screen.dart';
 
 void main() => runApp(MaterialApp(
       home: HomePage(),
@@ -17,7 +18,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   PageController pageController = PageController(initialPage: 1);
-  int _currentPage = 2;
+  int _currentPage = 0;
 
   final tabs = [
     ToDoRoute(),
@@ -39,12 +40,27 @@ class _HomePageState extends State<HomePage> {
             fontFamily: 'BPeople',
           ),
         ),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(
+              Icons.settings,
+              color: Color(0xffF6F4E6),
+            ),
+            onPressed: () {
+              Navigator.push(
+                  context, MaterialPageRoute(builder: (context) => SettingPage()));
+            },
+          )
+        ],
       ),
+      // body: tabs[_currentPage],
       body: PageView(
         controller: pageController,
-        // body: tabs[_currentPage],
         children: [
-          tabs[_currentPage],
+          // pageController.page==0? tabs[0]:_currentPage=0,
+          // pageController.page==1? tabs[1]:_currentPage=1,
+          // pageController.page==2? tabs[2]:_currentPage=2,
+
           ToDoRoute(),
           SixJarsRoute(),
           PlannerRoute(),
@@ -52,6 +68,32 @@ class _HomePageState extends State<HomePage> {
           //will leave it for now
         ],
       ),
+      drawer: Drawer(
+        child: ListView(
+         padding: EdgeInsets.zero,
+          children: <Widget>[
+            ListTile(
+              title: Text('Theories'),
+              onTap: () {
+                // Update the state of the app
+                // ...
+                // Then close the drawer
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: Text('About us'),
+              onTap: () {
+                // Update the state of the app
+                // ...
+                // Then close the drawer
+                Navigator.pop(context);
+                },
+              ),
+            ],
+          ),
+        ),
+
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: Color(0xFF41444B),
         // fixedColor: Color(0xffFDDB3A),
