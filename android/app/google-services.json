@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "910017623459",
+    "project_id": "routiner-3bbdd",
+    "storage_bucket": "routiner-3bbdd.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:910017623459:android:9d9d734dc686a429f09616",
+        "android_client_info": {
+          "package_name": "com.example.project_1"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "910017623459-ri8a65oljuqrtg60oc4h6blemnvkghdr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB9vkxz_darI-6tl4IEqwO7Mq3u7SBTFdc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "910017623459-ri8a65oljuqrtg60oc4h6blemnvkghdr.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

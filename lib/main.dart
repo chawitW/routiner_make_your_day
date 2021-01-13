@@ -6,9 +6,11 @@ import 'package:project_1/presentation/my_flutter_app_icons.dart';
 import 'package:project_1/six_jars_screen.dart';
 import 'package:project_1/to_do_screen.dart';
 import 'package:project_1/setting_screen.dart';
+import 'package:project_1/splash_screen.dart';
+
 
 void main() => runApp(MaterialApp(
-      home: HomePage(),
+      home: SplashScreen(),
     ));
 
 class HomePage extends StatefulWidget {
@@ -30,6 +32,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        iconTheme: IconThemeData(color: Color(0xffF6F4E6)),
         centerTitle: true,
         backgroundColor: Color(0xFF41444B),
         title: Text(
