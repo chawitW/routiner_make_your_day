@@ -8,10 +8,20 @@ import 'package:project_1/to_do_screen.dart';
 import 'package:project_1/setting_screen.dart';
 import 'package:project_1/splash_screen.dart';
 
+// import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 
-void main() => runApp(MaterialApp(
-      home: SplashScreen(),
-    ));
+
+// void main() => runApp(MaterialApp(
+//       home: SplashScreen(),
+//     ));
+
+void main() async {
+   WidgetsFlutterBinding.ensureInitialized();
+   await Firebase.initializeApp();
+   runApp(MaterialApp(
+      home: SplashScreen(),));
+}
 
 class HomePage extends StatefulWidget {
   @override
@@ -75,6 +85,15 @@ class _HomePageState extends State<HomePage> {
         child: ListView(
          padding: EdgeInsets.zero,
           children: <Widget>[
+            ListTile(
+              title: Text('Analytics'),
+              onTap: () {
+                // Update the state of the app
+                // ...
+                // Then close the drawer
+                Navigator.pop(context);
+              },
+            ),
             ListTile(
               title: Text('Theories'),
               onTap: () {
@@ -144,3 +163,4 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
+
