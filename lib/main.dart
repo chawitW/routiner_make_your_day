@@ -11,22 +11,21 @@ import 'package:project_1/appBar/about_screen.dart';
 import 'package:project_1/appBar/analytic_screen.dart';
 import 'package:project_1/appBar/theory_screen.dart';
 
-
 import 'package:project_1/splash_screen.dart';
 
 // import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
-
 
 // void main() => runApp(MaterialApp(
 //       home: SplashScreen(),
 //     ));
 
 void main() async {
-   WidgetsFlutterBinding.ensureInitialized();
-   await Firebase.initializeApp();
-   runApp(MaterialApp(
-      home: SplashScreen(),));
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  runApp(MaterialApp(
+    home: SplashScreen(),
+  ));
 }
 
 class HomePage extends StatefulWidget {
@@ -36,7 +35,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   PageController pageController = PageController(initialPage: 1);
-  int _currentPage = 0;
+  int _currentPage = 1;
 
   final tabs = [
     ToDoRoute(),
@@ -66,10 +65,8 @@ class _HomePageState extends State<HomePage> {
               color: Color(0xffF6F4E6),
             ),
             onPressed: () {
-              Navigator.push(
-                  context, MaterialPageRoute(builder: (context) => SettingPage()
-                )
-              );
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => SettingPage()));
             },
           )
         ],
@@ -77,6 +74,11 @@ class _HomePageState extends State<HomePage> {
       // body: tabs[_currentPage],
       body: PageView(
         controller: pageController,
+        onPageChanged: (page) {
+          setState(() {
+            _currentPage = page;
+          });
+        },
         children: [
           // pageController.page==0? tabs[0]:_currentPage=0,
           // pageController.page==1? tabs[1]:_currentPage=1,
@@ -91,7 +93,7 @@ class _HomePageState extends State<HomePage> {
       ),
       drawer: Drawer(
         child: ListView(
-         padding: EdgeInsets.zero,
+          padding: EdgeInsets.zero,
           children: <Widget>[
             ListTile(
               title: Text('Analytics'),
@@ -99,10 +101,8 @@ class _HomePageState extends State<HomePage> {
                 // Update the state of the app
                 // ...
                 // Then close the drawer
-                Navigator.push(
-                  context, MaterialPageRoute(builder: (context) => AnalyticsPage()
-                )
-              );
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => AnalyticsPage()));
               },
             ),
             ListTile(
@@ -111,10 +111,8 @@ class _HomePageState extends State<HomePage> {
                 // Update the state of the app
                 // ...
                 // Then close the drawer
-                Navigator.push(
-                  context, MaterialPageRoute(builder: (context) => TheoryPage()
-                )
-              );
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => TheoryPage()));
               },
             ),
             ListTile(
@@ -123,15 +121,13 @@ class _HomePageState extends State<HomePage> {
                 // Update the state of the app
                 // ...
                 // Then close the drawer
-                Navigator.push(
-                  context, MaterialPageRoute(builder: (context) => AboutUsPage()
-                )
-              );
-                },
-              ),
-            ],
-          ),
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => AboutUsPage()));
+              },
+            ),
+          ],
         ),
+      ),
 
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: Color(0xFF41444B),
@@ -172,12 +168,15 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
         onTap: (index) {
-          setState(() {
-            _currentPage = index;
-          });
+          _currentPage = index;
+
+          // pageController.animateToPage(index, duration: Duration(milliseconds:  200),
+          // curve: Curves.linear); //decoration
+
+          pageController.jumpToPage(index);
+          setState(() {});
         },
       ),
     );
   }
 }
-
