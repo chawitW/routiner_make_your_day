@@ -5,7 +5,13 @@ import 'package:project_1/planner_screen.dart';
 import 'package:project_1/presentation/my_flutter_app_icons.dart';
 import 'package:project_1/six_jars_screen.dart';
 import 'package:project_1/to_do_screen.dart';
-import 'package:project_1/setting_screen.dart';
+
+import 'package:project_1/appBar/setting_screen.dart';
+import 'package:project_1/appBar/about_screen.dart';
+import 'package:project_1/appBar/analytic_screen.dart';
+import 'package:project_1/appBar/theory_screen.dart';
+
+
 import 'package:project_1/splash_screen.dart';
 
 // import 'package:cloud_firestore/cloud_firestore.dart';
@@ -61,7 +67,9 @@ class _HomePageState extends State<HomePage> {
             ),
             onPressed: () {
               Navigator.push(
-                  context, MaterialPageRoute(builder: (context) => SettingPage()));
+                  context, MaterialPageRoute(builder: (context) => SettingPage()
+                )
+              );
             },
           )
         ],
@@ -91,7 +99,10 @@ class _HomePageState extends State<HomePage> {
                 // Update the state of the app
                 // ...
                 // Then close the drawer
-                Navigator.pop(context);
+                Navigator.push(
+                  context, MaterialPageRoute(builder: (context) => AnalyticsPage()
+                )
+              );
               },
             ),
             ListTile(
@@ -100,7 +111,10 @@ class _HomePageState extends State<HomePage> {
                 // Update the state of the app
                 // ...
                 // Then close the drawer
-                Navigator.pop(context);
+                Navigator.push(
+                  context, MaterialPageRoute(builder: (context) => TheoryPage()
+                )
+              );
               },
             ),
             ListTile(
@@ -109,7 +123,10 @@ class _HomePageState extends State<HomePage> {
                 // Update the state of the app
                 // ...
                 // Then close the drawer
-                Navigator.pop(context);
+                Navigator.push(
+                  context, MaterialPageRoute(builder: (context) => AboutUsPage()
+                )
+              );
                 },
               ),
             ],
