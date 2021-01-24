@@ -73,7 +73,8 @@ class _ToDoRouteState extends State<ToDoRoute> {
           ),
         ),
         body: Container(
-          margin: EdgeInsets.only(left:10.0, top:5.0,right:10.0,bottom:5.0),
+          // color: Color(0xffF6F4E6),
+          margin: EdgeInsets.only(left:8.0, top:4.0,right:8.0,bottom:4.0),
           child: StreamBuilder(
             stream:
                 FirebaseFirestore.instance.collection("MyTodos").snapshots(),
@@ -90,6 +91,7 @@ class _ToDoRouteState extends State<ToDoRoute> {
                       },
                       key: Key(documentSnapshot["todoTitle"]),
                       child: Card(
+                        color: Color(0xffF6F4E6),
                         elevation: 4,
                         margin: EdgeInsets.all(2),
                         shape: RoundedRectangleBorder(

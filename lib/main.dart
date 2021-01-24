@@ -91,41 +91,44 @@ class _HomePageState extends State<HomePage> {
           //will leave it for now
         ],
       ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            ListTile(
-              title: Text('Analytics'),
-              onTap: () {
-                // Update the state of the app
-                // ...
-                // Then close the drawer
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => AnalyticsPage()));
-              },
-            ),
-            ListTile(
-              title: Text('Theories'),
-              onTap: () {
-                // Update the state of the app
-                // ...
-                // Then close the drawer
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => TheoryPage()));
-              },
-            ),
-            ListTile(
-              title: Text('About us'),
-              onTap: () {
-                // Update the state of the app
-                // ...
-                // Then close the drawer
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => AboutUsPage()));
-              },
-            ),
-          ],
+      drawer: Theme(
+        data: Theme.of(context).copyWith(canvasColor: Color(0xffF6F4E6)),
+        child: Drawer(
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: <Widget>[
+              ListTile(
+                title: Text('Analytics'),
+                onTap: () {
+                  // Update the state of the app
+                  // ...
+                  // Then close the drawer
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => AnalyticsPage()));
+                },
+              ),
+              ListTile(
+                title: Text('Theories'),
+                onTap: () {
+                  // Update the state of the app
+                  // ...
+                  // Then close the drawer
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => TheoryPage()));
+                },
+              ),
+              ListTile(
+                title: Text('About us'),
+                onTap: () {
+                  // Update the state of the app
+                  // ...
+                  // Then close the drawer
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => AboutUsPage()));
+                },
+              ),
+            ],
+          ),
         ),
       ),
 
