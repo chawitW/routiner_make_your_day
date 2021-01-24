@@ -125,7 +125,6 @@ class _PlannerState extends State<PlannerPage> {
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8)),
               clipBehavior: Clip.antiAlias,
-              // elevation: 4,
               margin:
                   const EdgeInsets.only(top: 2, bottom: 2, left: 8, right: 8),
               color: Color(0xff7FDBDA),
