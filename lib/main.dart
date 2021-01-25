@@ -80,15 +80,9 @@ class _HomePageState extends State<HomePage> {
           });
         },
         children: [
-          // pageController.page==0? tabs[0]:_currentPage=0,
-          // pageController.page==1? tabs[1]:_currentPage=1,
-          // pageController.page==2? tabs[2]:_currentPage=2,
-
           ToDoRoute(),
           SixJarsRoute(),
           PlannerRoute(),
-          //stuck on SLIDE and TOUCH to change pages
-          //will leave it for now
         ],
       ),
       drawer: Theme(
@@ -150,6 +144,7 @@ class _HomePageState extends State<HomePage> {
           BottomNavigationBarItem(
               // icon: Image.asset('asset/icon/Ledger.png'),
               icon: Icon(MyFlutterApp.money,
+              // icon: Icon(Icons.attach_money_rounded,
                   color: _currentPage == 1
                       ? Color(0xffFDDB3A)
                       : Color(0xffF6F4E6)),
