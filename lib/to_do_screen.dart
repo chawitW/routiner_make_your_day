@@ -13,12 +13,30 @@ class ToDoRoute extends StatefulWidget {
 
 class _ToDoRouteState extends State<ToDoRoute> {
   String input = "";
+  String priority;
+  var priority_index;
+  List listMatrix = [
+    "Urgent and important",
+    "Not urgent and important",
+    "Urgent and not important",
+    "Not urgent and not important"
+  ];
+
+  @override
+  void initState() {
+    priority = listMatrix.first;
+    super.initState();
+  }
 
   createTodos() {
     DocumentReference documentReference =
         FirebaseFirestore.instance.collection("MyTodos").doc(input);
 
-    Map<String, String> todos = {"todoTitle": input};
+    Map<String, String> todos = {
+      "todoTitle": input,
+      "todoPriority": priority,
+      "todoPriority_index" : priority_index.toString(),
+    };
 
     documentReference.set(todos).whenComplete(() {
       print("$input created");
@@ -42,27 +60,81 @@ class _ToDoRouteState extends State<ToDoRoute> {
         floatingActionButton: FloatingActionButton(
           backgroundColor: Color(0xffFDDB3A),
           onPressed: () {
+            priority = listMatrix.first;
             showDialog(
                 context: context,
                 builder: (BuildContext context) {
-                  return AlertDialog(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8)),
-                    title: Text("Add to do list"),
-                    content: TextField(
-                      onChanged: (String value) {
-                        input = value;
-                      },
-                    ),
-                    actions: <Widget>[
-                      FlatButton(
-                        onPressed: () {
-                          createTodos();
-                          Navigator.of(context).pop();
-                        },
-                        child: Text("Add"),
-                      )
-                    ],
+                  return StatefulBuilder(
+                    builder: (context, setState) {
+                      // var height = MediaQuery.of(context).size.height;
+                      // var width = MediaQuery.of(context).size.width;
+                      return AlertDialog(
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8)),
+                        title: Text("Add to do list"),
+                        content: Container(
+                          // height: height*0.22,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              TextField(
+                                onChanged: (String value) {
+                                  input = value;
+                                },
+                              ),
+                              Container(
+                                margin: EdgeInsets.all(15.0),
+                                child: DropdownButtonHideUnderline(
+                                  child: DropdownButton(
+                                      isExpanded: true,
+                                      // hint: Text("Choose"),
+                                      value: priority,
+                                      isDense: true,
+                                      onChanged: (newValue) {
+                                        setState(() {
+                                          priority = newValue;
+                                        });
+                                        print(priority);
+                                      },
+                                      items: listMatrix.map((valueItem) {
+                                        return DropdownMenuItem<String>(
+                                          value: valueItem,
+                                          child: Text(valueItem),
+                                        );
+                                      }).toList()),
+                                ),
+                              ),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: <Widget>[
+                                  FlatButton(
+                                      onPressed: () {
+                                        if (priority == listMatrix[0]) {
+                                          priority_index = 1;
+                                        } else if (priority == listMatrix[1]) {
+                                          priority_index = 2;
+                                        } else if (priority == listMatrix[2]) {
+                                          priority_index = 3;
+                                        } else if (priority == listMatrix[3]) {
+                                          priority_index = 4;
+                                        } else {
+                                          priority_index = 0;
+                                        }
+                                        createTodos();
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: Container(
+                                        color: Colors.yellow,
+                                        child: Icon(Icons.add),
+                                      )),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
                   );
                 });
           },
@@ -73,43 +145,54 @@ class _ToDoRouteState extends State<ToDoRoute> {
         ),
         body: Container(
           // color: Color(0xffF6F4E6),
-          margin: EdgeInsets.only(left:8.0, top:4.0,right:8.0,bottom:4.0),
+          margin: EdgeInsets.only(left: 8.0, top: 4.0, right: 8.0, bottom: 4.0),
           child: StreamBuilder(
-            stream:
-                FirebaseFirestore.instance.collection("MyTodos").snapshots(),
-            builder: (context, snapshots) {
-              return ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: snapshots.data.documents.length,
-                  itemBuilder: (context, index) {
-                    DocumentSnapshot documentSnapshot =
-                        snapshots.data.documents[index];
-                    return Dismissible(
-                      onDismissed: (direction) {
-                        deleteTodos(documentSnapshot["todoTitle"]);
-                      },
-                      key: Key(documentSnapshot["todoTitle"]),
-                      child: Card(
-                        color: Color(0xffF6F4E6),
-                        elevation: 4,
-                        margin: EdgeInsets.all(2),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8)),
-                        child: ListTile(
-                          title: Text(documentSnapshot["todoTitle"]),
-                          trailing: IconButton(
-                            icon: Icon(Icons.delete),
-                            onPressed: () {
+              stream:
+                  FirebaseFirestore.instance.collection("MyTodos").orderBy("todoPriority_index").snapshots(),
+              builder: (context, snapshots) {
+                return ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: snapshots.data.documents.length,
+                    itemBuilder: (context, index) {
+                      DocumentSnapshot documentSnapshot =
+                          snapshots.data.documents[index];
+                      return Dismissible(
+                        onDismissed: (direction) {
+                          deleteTodos(documentSnapshot["todoTitle"]);
+                        },
+                        key: Key(documentSnapshot["todoTitle"]),
+                        child: Card(
+                          color:
+                              documentSnapshot["todoPriority"] == listMatrix[0]
+                                  ? Color(0xffFA7F72)
+                                  : documentSnapshot["todoPriority"] ==
+                                          listMatrix[1]
+                                      ? Color(0xff7FDBDA)
+                                      : documentSnapshot["todoPriority"] ==
+                                              listMatrix[2]
+                                          ? Color(0xff8675A9)
+                                          : documentSnapshot["todoPriority"] ==
+                                                  listMatrix[3]
+                                              ? Color(0xffADE498)
+                                              : Color(0xffF6F4E6),
+                          elevation: 4,
+                          margin: EdgeInsets.all(2),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8)),
+                          child: ListTile(
+                            title: Text(documentSnapshot["todoTitle"]),
+                            trailing: IconButton(
+                              icon: Icon(Icons.delete),
+                              onPressed: () {
                                 deleteTodos(documentSnapshot["todoTitle"]);
-                            },
+                              },
+                            ),
                           ),
                         ),
-                      ),
-                    );
-                  });
-            }),
-        )
-      );
+                      );
+                    });
+              }),
+        ));
   }
 }
 
