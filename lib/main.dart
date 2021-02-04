@@ -132,7 +132,7 @@ class _HomePageState extends State<HomePage> {
         items: [
           BottomNavigationBarItem(
               // icon: Image.asset('asset/icon/ToDo.png'),
-              icon: Icon(Icons.check_circle,
+              icon: Icon(Icons.check_box,
                   color: _currentPage == 0
                       ? Color(0xffFDDB3A)
                       : Color(0xffF6F4E6)),
@@ -143,8 +143,8 @@ class _HomePageState extends State<HomePage> {
                           : Color(0xffF6F4E6)))),
           BottomNavigationBarItem(
               // icon: Image.asset('asset/icon/Ledger.png'),
-              icon: Icon(MyFlutterApp.money,
-              // icon: Icon(Icons.attach_money_rounded,
+              icon: Icon(Icons.local_atm,
+                  // icon: Icon(Icons.attach_money_rounded,
                   color: _currentPage == 1
                       ? Color(0xffFDDB3A)
                       : Color(0xffF6F4E6)),
@@ -155,7 +155,7 @@ class _HomePageState extends State<HomePage> {
                           : Color(0xffF6F4E6)))),
           BottomNavigationBarItem(
             // icon: Image.asset('asset/icon/Planner.png'),
-            icon: Icon(MyFlutterApp.calendar,
+            icon: Icon(Icons.event,
                 color:
                     _currentPage == 2 ? Color(0xffFDDB3A) : Color(0xffF6F4E6)),
             title: Text("Planner",

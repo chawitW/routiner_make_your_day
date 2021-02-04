@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:firebase_core/firebase_core.dart';
 
 void main() {
   runApp(MaterialApp(home: ToDoRoute()));
@@ -14,6 +13,7 @@ class ToDoRoute extends StatefulWidget {
 class _ToDoRouteState extends State<ToDoRoute> {
   String input = "";
   String priority;
+  String groupTag = "";
   var priority_index;
   List listMatrix = [
     "Urgent and important",
@@ -30,24 +30,45 @@ class _ToDoRouteState extends State<ToDoRoute> {
 
   createTodos() {
     DocumentReference documentReference =
-        FirebaseFirestore.instance.collection("MyTodos").doc(input);
+        // FirebaseFirestore.instance.collection("MyTodos").doc(groupTag).collection("groupList").doc(input);
+        FirebaseFirestore.instance.collection("MyTodos").doc(groupTag);
 
     Map<String, String> todos = {
       "todoTitle": input,
       "todoPriority": priority,
-      "todoPriority_index" : priority_index.toString(),
+      "todoPriority_index": priority_index.toString(),
+      "todoGroupTag": groupTag,
     };
 
-    documentReference.set(todos).whenComplete(() {
+    documentReference.set({
+      "groupTag": groupTag,
+    });
+
+    documentReference
+        .collection("groupList")
+        .doc(input)
+        .set(todos)
+        .whenComplete(() {
       print("$input created");
     });
   }
 
-  deleteTodos(item) {
+  deleteTodos(item, tag) {
     DocumentReference documentReference =
-        FirebaseFirestore.instance.collection("MyTodos").doc(item);
+        FirebaseFirestore.instance.collection("MyTodos").doc(tag);
 
-    documentReference.delete().whenComplete(() {
+    documentReference
+        .collection("groupList")
+        .doc(item)
+        .delete()
+        .whenComplete(() {
+      // if (documentReference.collection("groupList").limit(1).get() == null) {
+      //   // documentReference.delete();
+      //   print("NULL");
+      // }
+
+      // documentReference.delete(); //can use this in right condition
+
       print("deleted");
     });
   }
@@ -69,6 +90,7 @@ class _ToDoRouteState extends State<ToDoRoute> {
                       // var height = MediaQuery.of(context).size.height;
                       // var width = MediaQuery.of(context).size.width;
                       return AlertDialog(
+                        backgroundColor: Color(0xffF6F4E6),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8)),
                         title: Text("Add to do list"),
@@ -104,6 +126,11 @@ class _ToDoRouteState extends State<ToDoRoute> {
                                       }).toList()),
                                 ),
                               ),
+                              TextField(
+                                onChanged: (String value) {
+                                  groupTag = value;
+                                },
+                              ),
                               Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceEvenly,
@@ -125,8 +152,11 @@ class _ToDoRouteState extends State<ToDoRoute> {
                                         Navigator.of(context).pop();
                                       },
                                       child: Container(
-                                        color: Colors.yellow,
-                                        child: Icon(Icons.add),
+                                        // color: Colors.yellow,
+                                        child: Icon(
+                                          Icons.add_circle_rounded,
+                                          color: Color(0xffFDDB3A),
+                                        ),
                                       )),
                                 ],
                               ),
@@ -148,46 +178,86 @@ class _ToDoRouteState extends State<ToDoRoute> {
           margin: EdgeInsets.only(left: 8.0, top: 4.0, right: 8.0, bottom: 4.0),
           child: StreamBuilder(
               stream:
-                  FirebaseFirestore.instance.collection("MyTodos").orderBy("todoPriority_index").snapshots(),
+                  FirebaseFirestore.instance.collection("MyTodos").snapshots(),
               builder: (context, snapshots) {
+                // if(snapshots.data.documents.ex){
+                // }
                 return ListView.builder(
                     shrinkWrap: true,
                     itemCount: snapshots.data.documents.length,
                     itemBuilder: (context, index) {
                       DocumentSnapshot documentSnapshot =
                           snapshots.data.documents[index];
-                      return Dismissible(
-                        onDismissed: (direction) {
-                          deleteTodos(documentSnapshot["todoTitle"]);
-                        },
-                        key: Key(documentSnapshot["todoTitle"]),
-                        child: Card(
-                          color:
-                              documentSnapshot["todoPriority"] == listMatrix[0]
-                                  ? Color(0xffFA7F72)
-                                  : documentSnapshot["todoPriority"] ==
-                                          listMatrix[1]
-                                      ? Color(0xff7FDBDA)
-                                      : documentSnapshot["todoPriority"] ==
-                                              listMatrix[2]
-                                          ? Color(0xff8675A9)
-                                          : documentSnapshot["todoPriority"] ==
-                                                  listMatrix[3]
-                                              ? Color(0xffADE498)
-                                              : Color(0xffF6F4E6),
-                          elevation: 4,
-                          margin: EdgeInsets.all(2),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8)),
-                          child: ListTile(
-                            title: Text(documentSnapshot["todoTitle"]),
-                            trailing: IconButton(
-                              icon: Icon(Icons.delete),
-                              onPressed: () {
-                                deleteTodos(documentSnapshot["todoTitle"]);
+                      return Card(
+                        color: Color(0xffF6F4E6),
+                        child: Column(
+                          // mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(documentSnapshot["groupTag"]),
+                            StreamBuilder(
+                              stream: FirebaseFirestore.instance
+                                  .collection("MyTodos")
+                                  .doc(documentSnapshot["groupTag"])
+                                  .collection("groupList")
+                                  .snapshots(),
+                              builder: (context, snapshots) {
+                                return ListView.builder(
+                                    shrinkWrap: true,
+                                    itemCount: snapshots.data.documents.length,
+                                    itemBuilder: (context, index) {
+                                      DocumentSnapshot documentSnapshot =
+                                          snapshots.data.documents[index];
+                                      return Dismissible(
+                                        onDismissed: (direction) {
+                                          deleteTodos(
+                                              documentSnapshot["todoTitle"],
+                                              documentSnapshot["todoGroupTag"],
+                                              );
+                                        },
+                                        key: Key(documentSnapshot["todoTitle"]),
+                                        child: Card(
+                                          color: documentSnapshot[
+                                                      "todoPriority"] ==
+                                                  listMatrix[0]
+                                              ? Color(0xffFA7F72)
+                                              : documentSnapshot[
+                                                          "todoPriority"] ==
+                                                      listMatrix[1]
+                                                  ? Color(0xff7FDBDA)
+                                                  : documentSnapshot[
+                                                              "todoPriority"] ==
+                                                          listMatrix[2]
+                                                      ? Color(0xff8675A9)
+                                                      : documentSnapshot[
+                                                                  "todoPriority"] ==
+                                                              listMatrix[3]
+                                                          ? Color(0xffADE498)
+                                                          : Color(0xffF6F4E6),
+                                          elevation: 4,
+                                          margin: EdgeInsets.all(2),
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(8)),
+                                          child: ListTile(
+                                            title: Text(
+                                                documentSnapshot["todoTitle"]),
+                                            trailing: IconButton(
+                                              icon: Icon(Icons.delete),
+                                              onPressed: () {
+                                                deleteTodos(
+                                                    documentSnapshot[
+                                                        "todoTitle"],
+                                                    documentSnapshot[
+                                                        "todoGroupTag"]);
+                                              },
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    });
                               },
                             ),
-                          ),
+                          ],
                         ),
                       );
                     });
@@ -195,13 +265,3 @@ class _ToDoRouteState extends State<ToDoRoute> {
         ));
   }
 }
-
-// class ToDoRoute extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       body: Text("To Do Page"),
-//       backgroundColor: Color(0xff52575D),
-//     );
-//   }
-// }
