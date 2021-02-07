@@ -30,8 +30,7 @@ class _ToDoRouteState extends State<ToDoRoute> {
 
   createTodos() {
     DocumentReference documentReference =
-        // FirebaseFirestore.instance.collection("MyTodos").doc(groupTag).collection("groupList").doc(input);
-        FirebaseFirestore.instance.collection("MyTodos").doc(groupTag);
+        FirebaseFirestore.instance.collection("TodoList").doc(groupTag);
 
     Map<String, String> todos = {
       "todoTitle": input,
@@ -55,7 +54,7 @@ class _ToDoRouteState extends State<ToDoRoute> {
 
   deleteTodos(item, tag) {
     DocumentReference documentReference =
-        FirebaseFirestore.instance.collection("MyTodos").doc(tag);
+        FirebaseFirestore.instance.collection("TodoList").doc(tag);
 
     documentReference
         .collection("groupList")
@@ -79,6 +78,7 @@ class _ToDoRouteState extends State<ToDoRoute> {
     return Scaffold(
         backgroundColor: Color(0xff52575D),
         floatingActionButton: FloatingActionButton(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(360.0)),side: BorderSide(color: Color(0xffF6F4E6), width: 1.0)),
           backgroundColor: Color(0xffFDDB3A),
           onPressed: () {
             priority = listMatrix.first;
@@ -87,80 +87,106 @@ class _ToDoRouteState extends State<ToDoRoute> {
                 builder: (BuildContext context) {
                   return StatefulBuilder(
                     builder: (context, setState) {
-                      // var height = MediaQuery.of(context).size.height;
-                      // var width = MediaQuery.of(context).size.width;
                       return AlertDialog(
                         backgroundColor: Color(0xffF6F4E6),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8)),
-                        title: Text("Add to do list"),
-                        content: Container(
-                          // height: height*0.22,
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              TextField(
-                                onChanged: (String value) {
-                                  input = value;
-                                },
-                              ),
-                              Container(
-                                margin: EdgeInsets.all(15.0),
-                                child: DropdownButtonHideUnderline(
-                                  child: DropdownButton(
-                                      isExpanded: true,
-                                      // hint: Text("Choose"),
-                                      value: priority,
-                                      isDense: true,
-                                      onChanged: (newValue) {
-                                        setState(() {
-                                          priority = newValue;
-                                        });
-                                        print(priority);
-                                      },
-                                      items: listMatrix.map((valueItem) {
-                                        return DropdownMenuItem<String>(
-                                          value: valueItem,
-                                          child: Text(valueItem),
-                                        );
-                                      }).toList()),
+                        title: Center(child: Text("Add to do list")),
+                        content: SingleChildScrollView(
+                          child: Container(
+                            // margin: EdgeInsets.all(0),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                TextField(
+                                  decoration: InputDecoration(
+                                    border: OutlineInputBorder(
+                                        borderSide:
+                                            new BorderSide(color: Colors.teal)),
+                                    hintText: 'Enter a thing to do',
+                                    // helperText:
+                                    //     'Keep it short, this is just a demo.',
+                                    labelText: 'To do task',
+                                  ),
+                                  onChanged: (String value) {
+                                    input = value;
+                                  },
                                 ),
-                              ),
-                              TextField(
-                                onChanged: (String value) {
-                                  groupTag = value;
-                                },
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: <Widget>[
-                                  FlatButton(
-                                      onPressed: () {
-                                        if (priority == listMatrix[0]) {
-                                          priority_index = 1;
-                                        } else if (priority == listMatrix[1]) {
-                                          priority_index = 2;
-                                        } else if (priority == listMatrix[2]) {
-                                          priority_index = 3;
-                                        } else if (priority == listMatrix[3]) {
-                                          priority_index = 4;
-                                        } else {
-                                          priority_index = 0;
-                                        }
-                                        createTodos();
-                                        Navigator.of(context).pop();
-                                      },
-                                      child: Container(
-                                        // color: Colors.yellow,
-                                        child: Icon(
-                                          Icons.add_circle_rounded,
-                                          color: Color(0xffFDDB3A),
-                                        ),
-                                      )),
-                                ],
-                              ),
-                            ],
+                                Container(
+                                  decoration: ShapeDecoration(
+                                    shape: OutlineInputBorder(
+                                        borderSide:
+                                            BorderSide(color: Colors.teal)),
+                                  ),
+                                  margin: EdgeInsets.only(top: 10, bottom: 10),
+                                  child: Container(
+                                    margin: EdgeInsets.all(15),
+                                    child: DropdownButtonHideUnderline(
+                                      child: DropdownButton(
+                                          isExpanded: true,
+                                          // hint: Text("Choose"),
+                                          value: priority,
+                                          isDense: true,
+                                          onChanged: (newValue) {
+                                            setState(() {
+                                              priority = newValue;
+                                            });
+                                            print(priority);
+                                          },
+                                          items: listMatrix.map((valueItem) {
+                                            return DropdownMenuItem<String>(
+                                              value: valueItem,
+                                              child: Text(valueItem),
+                                            );
+                                          }).toList()),
+                                    ),
+                                  ),
+                                ),
+                                TextField(
+                                  decoration: InputDecoration(
+                                    border: OutlineInputBorder(
+                                        borderSide:
+                                            new BorderSide(color: Colors.teal)),
+                                    hintText: 'Enter a group name.',
+                                    // helperText:
+                                    //     'Keep it short, this is just a demo.',
+                                    labelText: 'Group',
+                                  ),
+                                  onChanged: (String value) {
+                                    groupTag = value;
+                                  },
+                                ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: <Widget>[
+                                    FlatButton(
+                                        onPressed: () {
+                                          if (priority == listMatrix[0]) {
+                                            priority_index = 1;
+                                          } else if (priority == listMatrix[1]) {
+                                            priority_index = 2;
+                                          } else if (priority == listMatrix[2]) {
+                                            priority_index = 3;
+                                          } else if (priority == listMatrix[3]) {
+                                            priority_index = 4;
+                                          } else {
+                                            priority_index = 0;
+                                          }
+                                          createTodos();
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: Container(
+                                          // color: Colors.yellow,
+                                          child: Icon(
+                                            Icons.add_circle_rounded,
+                                            color: Color(0xffFDDB3A),
+                                          ),
+                                        )),
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       );
@@ -178,7 +204,7 @@ class _ToDoRouteState extends State<ToDoRoute> {
           margin: EdgeInsets.only(left: 8.0, top: 4.0, right: 8.0, bottom: 4.0),
           child: StreamBuilder(
               stream:
-                  FirebaseFirestore.instance.collection("MyTodos").snapshots(),
+                  FirebaseFirestore.instance.collection("TodoList").snapshots(),
               builder: (context, snapshots) {
                 if (snapshots.data == null) {
                   return CircularProgressIndicator();
@@ -192,12 +218,21 @@ class _ToDoRouteState extends State<ToDoRoute> {
                         return Card(
                           color: Color(0xffF6F4E6),
                           child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             // mainAxisSize: MainAxisSize.min,
                             children: [
-                              Text(documentSnapshot["groupTag"]),
+                              Container(
+                                margin: EdgeInsets.only(
+                                    top: 10, left: 10, bottom: 5),
+                                child: Text(
+                                  documentSnapshot["groupTag"],
+                                  textAlign: TextAlign.left,
+                                  style: TextStyle(fontSize: 20),
+                                ),
+                              ),
                               StreamBuilder(
                                 stream: FirebaseFirestore.instance
-                                    .collection("MyTodos")
+                                    .collection("TodoList")
                                     .doc(documentSnapshot["groupTag"])
                                     .collection("groupList")
                                     .orderBy("todoPriority_index")
@@ -206,67 +241,84 @@ class _ToDoRouteState extends State<ToDoRoute> {
                                   if (snapshots.data == null) {
                                     return CircularProgressIndicator();
                                   } else {
-                                    return ListView.builder(
-                                        physics:
-                                            const NeverScrollableScrollPhysics(),
-                                        shrinkWrap: true,
-                                        itemCount:
-                                            snapshots.data.documents.length,
-                                        itemBuilder: (context, index) {
-                                          DocumentSnapshot documentSnapshot =
-                                              snapshots.data.documents[index];
-                                          return Dismissible(
-                                            onDismissed: (direction) {
-                                              deleteTodos(
-                                                documentSnapshot["todoTitle"],
-                                                documentSnapshot[
-                                                    "todoGroupTag"],
-                                              );
-                                            },
-                                            key: Key(
-                                                documentSnapshot["todoTitle"]),
-                                            child: Card(
-                                              color: documentSnapshot[
-                                                          "todoPriority"] ==
-                                                      listMatrix[0]
-                                                  ? Color(0xffFA7F72)
-                                                  : documentSnapshot[
-                                                              "todoPriority"] ==
-                                                          listMatrix[1]
-                                                      ? Color(0xff7FDBDA)
-                                                      : documentSnapshot[
-                                                                  "todoPriority"] ==
-                                                              listMatrix[2]
-                                                          ? Color(0xff8675A9)
-                                                          : documentSnapshot[
-                                                                      "todoPriority"] ==
-                                                                  listMatrix[3]
-                                                              ? Color(
-                                                                  0xffADE498)
-                                                              : Color(
-                                                                  0xffF6F4E6),
-                                              elevation: 4,
-                                              margin: EdgeInsets.all(2),
-                                              shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(8)),
-                                              child: ListTile(
-                                                title: Text(documentSnapshot[
+                                    return Container(
+                                      margin:
+                                          EdgeInsets.only(bottom: 10, top: 5),
+                                      child: ListView.builder(
+                                          physics:
+                                              const NeverScrollableScrollPhysics(),
+                                          shrinkWrap: true,
+                                          itemCount:
+                                              snapshots.data.documents.length,
+                                          itemBuilder: (context, index) {
+                                            DocumentSnapshot documentSnapshot =
+                                                snapshots.data.documents[index];
+                                            return Dismissible(
+                                                onDismissed: (direction) {
+                                                  deleteTodos(
+                                                    documentSnapshot[
+                                                        "todoTitle"],
+                                                    documentSnapshot[
+                                                        "todoGroupTag"],
+                                                  );
+                                                },
+                                                key: Key(documentSnapshot[
                                                     "todoTitle"]),
-                                                trailing: IconButton(
-                                                  icon: Icon(Icons.delete),
-                                                  onPressed: () {
-                                                    deleteTodos(
-                                                        documentSnapshot[
-                                                            "todoTitle"],
-                                                        documentSnapshot[
-                                                            "todoGroupTag"]);
-                                                  },
-                                                ),
-                                              ),
-                                            ),
-                                          );
-                                        });
+                                                child: Container(
+                                                  child: Card(
+                                                    color: documentSnapshot[
+                                                                "todoPriority"] ==
+                                                            listMatrix[0]
+                                                        ? Color(0xffFA7F72)
+                                                        : documentSnapshot[
+                                                                    "todoPriority"] ==
+                                                                listMatrix[1]
+                                                            ? Color(0xff7FDBDA)
+                                                            : documentSnapshot[
+                                                                        "todoPriority"] ==
+                                                                    listMatrix[
+                                                                        2]
+                                                                ? Color(
+                                                                    0xff8675A9)
+                                                                : documentSnapshot["todoPriority"] ==
+                                                                        listMatrix[
+                                                                            3]
+                                                                    ? Color(
+                                                                        0xffADE498)
+                                                                    : Color(
+                                                                        0xffF6F4E6),
+                                                    elevation: 4,
+                                                    margin: EdgeInsets.only(
+                                                      right: 10,
+                                                      left: 10,
+                                                      top: 4,
+                                                    ),
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        8)),
+                                                    child: ListTile(
+                                                      title: Text(
+                                                          documentSnapshot[
+                                                              "todoTitle"]),
+                                                      trailing: IconButton(
+                                                        icon:
+                                                            Icon(Icons.delete),
+                                                        onPressed: () {
+                                                          deleteTodos(
+                                                              documentSnapshot[
+                                                                  "todoTitle"],
+                                                              documentSnapshot[
+                                                                  "todoGroupTag"]);
+                                                        },
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ));
+                                          }),
+                                    );
                                   }
                                 },
                               ),
