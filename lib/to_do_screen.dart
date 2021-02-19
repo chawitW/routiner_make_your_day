@@ -10,7 +10,8 @@ class ToDoRoute extends StatefulWidget {
   _ToDoRouteState createState() => _ToDoRouteState();
 }
 
-class _ToDoRouteState extends State<ToDoRoute> {
+class _ToDoRouteState extends State<ToDoRoute> with TickerProviderStateMixin {
+  TabController dateController;
   String input = "";
   String priority;
   String groupTag = "";
@@ -227,7 +228,6 @@ class _ToDoRouteState extends State<ToDoRoute> {
 
                           // snapshots.data.document[oldIndex].delete();
                           // snapshots.data.document[newIndex].set(todos);
-
                         });
                       },
                       children: List.generate(snapshots.data.documents.length,

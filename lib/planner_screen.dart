@@ -20,6 +20,7 @@ class PlannerPage extends StatefulWidget {
 
 class _PlannerState extends State<PlannerPage> with TickerProviderStateMixin {
   CalendarController _controller;
+  TabController dateController;
   String input = "";
   String activity = "";
   int activity_index;
@@ -55,13 +56,17 @@ class _PlannerState extends State<PlannerPage> with TickerProviderStateMixin {
   @override
   void initState() {
     activity = activityList.first;
+
     super.initState();
+    dateController = TabController(vsync: this, length: 7, initialIndex: 0);
     _controller = CalendarController();
   }
 
   @override
   void dispose() {
     _controller.dispose();
+    // ignore: unnecessary_statements
+    dateController.dispose;
     super.dispose();
   }
 
@@ -142,6 +147,7 @@ class _PlannerState extends State<PlannerPage> with TickerProviderStateMixin {
                                 }
                                 createPlanners();
                                 Navigator.of(context).pop();
+                                setState(() {});
                               },
                               child: Container(
                                 // color: Colors.yellow,
@@ -171,9 +177,12 @@ class _PlannerState extends State<PlannerPage> with TickerProviderStateMixin {
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8)),
               clipBehavior: Clip.antiAlias,
-              margin: const EdgeInsets.all(8.0),
+              margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
               color: Color(0xffF6F4E6),
               child: TableCalendar(
+                onDaySelected: (context, date, events) {
+                  setState(() {});
+                },
                 weekendDays: [6, 7],
                 initialCalendarFormat: CalendarFormat.week,
                 calendarStyle: CalendarStyle(
@@ -196,10 +205,6 @@ class _PlannerState extends State<PlannerPage> with TickerProviderStateMixin {
                 startingDayOfWeek: StartingDayOfWeek.sunday,
                 builders: CalendarBuilders(
                   selectedDayBuilder: (context, date, events) {
-                    // _onDaySelected(date, events, activityList);
-                    // setState(() {
-                    //   _controller = this._controller;
-                    // });
                     return Container(
                         margin: const EdgeInsets.all(4.0),
                         alignment: Alignment.center,
@@ -244,9 +249,13 @@ class _PlannerState extends State<PlannerPage> with TickerProviderStateMixin {
                           DocumentSnapshot documentSnapshot =
                               snapshots.data.documents[index];
                           return Card(
-                            color: Color(0xffF6F4E6),
-                            child: Text("Hello"),
-                          );
+                              color: Color(0xffF6F4E6),
+                              margin:
+                                  EdgeInsets.only(left: 10, right: 10, top: 4),
+                              elevation: 4,
+                              child: ListTile(
+                                  title: Text(
+                                      documentSnapshot["plannerDetails"])));
                         });
                   }
                 }),
