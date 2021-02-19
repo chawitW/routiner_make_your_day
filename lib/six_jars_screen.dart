@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import 'package:intl/date_symbol_data_local.dart';
+// import 'package:intl/date_symbol_data_local.dart';
 // initializeDateFormatting('fr_FR', null) async .then((_) => runMyCode());
 
 void main() {
@@ -79,6 +79,7 @@ class _SixJarsRouteState extends State<SixJarsRoute>
     animationController.dispose();
     super.dispose();
   }
+  
 
   createLedgers() {
     DocumentReference documentReference = FirebaseFirestore.instance

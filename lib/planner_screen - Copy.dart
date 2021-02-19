@@ -159,7 +159,7 @@ class _PlannerState extends State<PlannerPage> with TickerProviderStateMixin {
         },
         child: Icon(
           Icons.add,
-          color: Colors.white,
+          color: Color(0xffF6F4E6),
         ),
       ),
       backgroundColor: Color(0xff52575D),
@@ -195,23 +195,23 @@ class _PlannerState extends State<PlannerPage> with TickerProviderStateMixin {
                 ),
                 startingDayOfWeek: StartingDayOfWeek.sunday,
                 builders: CalendarBuilders(
-                  selectedDayBuilder: (context, date, events) {
-                    // _onDaySelected(date, events, activityList);
-                    // setState(() {
-                    //   _controller = this._controller;
-                    // });
-                    return Container(
-                        margin: const EdgeInsets.all(4.0),
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                            color: Color(0xffFDDB3A), // current selected
-                            borderRadius: BorderRadius.circular(10.0)),
-                        child: Text(
-                          date.day.toString(),
-                          style: TextStyle(
-                              color: Color(0xffF6F4E6)), //selected date
-                        ));
-                  },
+                  // selectedDayBuilder: (context, date, events) {
+                  // _onDaySelected(date, events, activityList);
+                  // setState(() {
+                  //   _controller = this._controller;
+                  // });
+                  // return Container(
+                  //     margin: const EdgeInsets.all(4.0),
+                  //     alignment: Alignment.center,
+                  //     decoration: BoxDecoration(
+                  //         color: Color(0xffFDDB3A), // current selected
+                  //         borderRadius: BorderRadius.circular(10.0)),
+                  //     child: Text(
+                  //       date.day.toString(),
+                  //       style: TextStyle(
+                  //           color: Color(0xffF6F4E6)), //selected date
+                  //     ));
+                  // },
                   todayDayBuilder: (context, date, events) => Container(
                       margin: const EdgeInsets.all(4.0),
                       alignment: Alignment.center,
