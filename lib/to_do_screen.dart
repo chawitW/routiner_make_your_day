@@ -101,19 +101,20 @@ class _ToDoRouteState extends State<ToDoRoute> with TickerProviderStateMixin {
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                TextField(
-                                  decoration: InputDecoration(
-                                    border: OutlineInputBorder(
-                                        borderSide:
-                                            new BorderSide(color: Colors.teal)),
-                                    hintText: 'Enter a thing to do',
-                                    // helperText:
-                                    //     'Keep it short, this is just a demo.',
-                                    labelText: 'To do task',
+                                Container(
+                                  padding: EdgeInsets.only(top: 10),
+                                  child: TextField(
+                                    decoration: InputDecoration(
+                                      border: OutlineInputBorder(
+                                          borderSide: BorderSide(
+                                              color: Colors.teal)),
+                                      hintText: 'Enter a thing to do',
+                                      labelText: 'To do task',
+                                    ),
+                                    onChanged: (String value) {
+                                      input = value;
+                                    },
                                   ),
-                                  onChanged: (String value) {
-                                    input = value;
-                                  },
                                 ),
                                 Container(
                                   decoration: ShapeDecoration(

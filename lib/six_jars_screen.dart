@@ -77,7 +77,6 @@ class _SixJarsRouteState extends State<SixJarsRoute>
     animationController.dispose();
     super.dispose();
   }
-  
 
   createLedgers() {
     DocumentReference documentReference = FirebaseFirestore.instance
@@ -99,6 +98,9 @@ class _SixJarsRouteState extends State<SixJarsRoute>
       "ledgerAmount": amount,
     };
 
+    documentReference.set({
+      "jarAmount": "0.00",
+    });
     documentReference.collection("statementList").doc(details).set(statement);
   }
 
@@ -132,24 +134,27 @@ class _SixJarsRouteState extends State<SixJarsRoute>
                                 title:
                                     Center(child: Text(jarName[_currentJar])),
                               ),
+                              //problems is cannot create amount of each jar at the first time
                               ListTile(
                                   title: Center(
-                                      child: StreamBuilder(
-                                          stream: FirebaseFirestore.instance
-                                              .collection("Ledger")
-                                              .orderBy("jarNumber")
-                                              .snapshots(),
-                                          builder: (context, snapshots) {
-                                            if (snapshots.data == null)
-                                              return CircularProgressIndicator();
-                                            return Text(
-                                              snapshots.data
-                                                      .documents[_currentJar]
-                                                  ["jarAmount"],
-                                              style: TextStyle(fontSize: 36),
-                                            );
-                                            // return;
-                                          }))),
+                                      // child:
+                                      // StreamBuilder(
+                                      //     stream: FirebaseFirestore.instance
+                                      //         .collection("Ledger")
+                                      //         .snapshots(),
+                                      //     builder: (context, snapshots) {
+                                      //       if (snapshots.data == null)
+                                      //         return CircularProgressIndicator();
+                                      //       return Text(
+                                      //         snapshots.data.documents[
+                                      //                     _currentJar]
+                                      //                 ["jarAmount"] ??
+                                      //             "0.01",
+                                      //         style:
+                                      //             TextStyle(fontSize: 36),
+                                      //       );
+                                      //     })
+                                      )),
                               ListTile(title: Center(child: Text("Baht"))),
                               TabBar(
                                 unselectedLabelColor: Color(0xFF41444B),
