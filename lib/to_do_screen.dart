@@ -224,8 +224,8 @@ class _ToDoRouteState extends State<ToDoRoute> with TickerProviderStateMixin {
                         print("$oldIndex  $newIndex");
 
                         setState(() {
-                          Map<String, String> todos =
-                              snapshots.data.document[oldIndex];
+                          // Map<String, String> todos =
+                          //     snapshots.data.document[oldIndex];
 
                           // snapshots.data.document[oldIndex].delete();
                           // snapshots.data.document[newIndex].set(todos);

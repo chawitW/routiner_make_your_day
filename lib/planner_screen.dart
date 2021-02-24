@@ -276,45 +276,37 @@ class _PlannerState extends State<PlannerPage> with TickerProviderStateMixin {
                   calendarController: _controller,
                 ),
               ),
-              Card(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8)),
-                clipBehavior: Clip.antiAlias,
-                margin: const EdgeInsets.only(
-                    top: 10, bottom: 4, left: 8, right: 8),
-                color: Color(0xffF6F4E6),
-                child: StreamBuilder(
-                    stream: FirebaseFirestore.instance
-                        .collection("Planner")
-                        .doc(_controller.selectedDay.toString())
-                        .collection("plannerList")
-                        .snapshots(),
-                    builder: (context, snapshots) {
-                      if (snapshots.data == null) {
-                        return CircularProgressIndicator();
-                      } else {
-                        return ListView.builder(
-                            padding: EdgeInsets.only(top: 4),
-                            shrinkWrap: true,
-                            itemCount: snapshots.data.documents.length,
-                            itemBuilder: (context, index) {
-                              DocumentSnapshot documentSnapshot =
-                                  snapshots.data.documents[index];
-                              return Card(
-                                  color: activityColors[int.parse(
-                                          documentSnapshot[
-                                              "plannerActivityNumber"]) -
-                                      1],
-                                  margin: EdgeInsets.only(
-                                      left: 10, right: 10, top: 4),
-                                  elevation: 4,
-                                  child: ListTile(
-                                      title: Text(
-                                          documentSnapshot["plannerDetails"])));
-                            });
-                      }
-                    }),
-              ),
+              StreamBuilder(
+                  stream: FirebaseFirestore.instance
+                      .collection("Planner")
+                      .doc(_controller.selectedDay.toString())
+                      .collection("plannerList")
+                      .snapshots(),
+                  builder: (context, snapshots) {
+                    if (snapshots.data == null) {
+                      return CircularProgressIndicator();
+                    } else {
+                      return ListView.builder(
+                          padding: EdgeInsets.only(top: 4),
+                          shrinkWrap: true,
+                          itemCount: snapshots.data.documents.length,
+                          itemBuilder: (context, index) {
+                            DocumentSnapshot documentSnapshot =
+                                snapshots.data.documents[index];
+                            return Card(
+                                color: activityColors[int.parse(
+                                        documentSnapshot[
+                                            "plannerActivityNumber"]) -
+                                    1],
+                                margin: EdgeInsets.only(
+                                    left: 10, right: 10, top: 4),
+                                elevation: 4,
+                                child: ListTile(
+                                    title: Text(
+                                        documentSnapshot["plannerDetails"])));
+                          });
+                    }
+                  }),
             ],
           ),
         ),

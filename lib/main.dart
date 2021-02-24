@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:project_1/planner_screen.dart';
-import 'package:project_1/presentation/my_flutter_app_icons.dart';
+// import 'package:project_1/presentation/my_flutter_app_icons.dart';
 import 'package:project_1/six_jars_screen.dart';
 import 'package:project_1/to_do_screen.dart';
 
@@ -92,7 +92,7 @@ class _HomePageState extends State<HomePage> {
             padding: EdgeInsets.zero,
             children: <Widget>[
               ListTile(
-                title: Text('Analytics'),
+                title: Text('Summary'),
                 onTap: () {
                   // Update the state of the app
                   // ...
