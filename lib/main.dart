@@ -58,18 +58,6 @@ class _HomePageState extends State<HomePage> {
             fontFamily: 'BPeople',
           ),
         ),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(
-              Icons.settings,
-              color: Color(0xffF6F4E6),
-            ),
-            onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => SettingPage()));
-            },
-          )
-        ],
       ),
       // body: tabs[_currentPage],
       body: PageView(
@@ -94,9 +82,7 @@ class _HomePageState extends State<HomePage> {
               ListTile(
                 title: Text('Summary'),
                 onTap: () {
-                  // Update the state of the app
-                  // ...
-                  // Then close the drawer
+                  Navigator.of(context).pop();
                   Navigator.push(context,
                       MaterialPageRoute(builder: (context) => AnalyticsPage()));
                 },
@@ -104,21 +90,17 @@ class _HomePageState extends State<HomePage> {
               ListTile(
                 title: Text('Theories'),
                 onTap: () {
-                  // Update the state of the app
-                  // ...
-                  // Then close the drawer
+                  Navigator.of(context).pop();
                   Navigator.push(context,
                       MaterialPageRoute(builder: (context) => TheoryPage()));
                 },
               ),
               ListTile(
-                title: Text('About us'),
+                title: Text('Setting'),
                 onTap: () {
-                  // Update the state of the app
-                  // ...
-                  // Then close the drawer
+                  Navigator.of(context).pop();
                   Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => AboutUsPage()));
+                      MaterialPageRoute(builder: (context) => SettingPage()));
                 },
               ),
             ],

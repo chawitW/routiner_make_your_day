@@ -39,6 +39,7 @@ class _SixJarsRouteState extends State<SixJarsRoute>
   // var stmType_index = 0;
   String amount = "0.00";
   String stmType = "";
+  bool autoJar = true;
   List jarName = [
     "Need jar",
     "Education jar",
@@ -68,6 +69,7 @@ class _SixJarsRouteState extends State<SixJarsRoute>
     animationController.addListener(() {
       setState(() {});
     });
+
     //  _asyncMethod();
   }
 
@@ -137,24 +139,21 @@ class _SixJarsRouteState extends State<SixJarsRoute>
                               //problems is cannot create amount of each jar at the first time
                               ListTile(
                                   title: Center(
-                                      // child:
-                                      // StreamBuilder(
-                                      //     stream: FirebaseFirestore.instance
-                                      //         .collection("Ledger")
-                                      //         .snapshots(),
-                                      //     builder: (context, snapshots) {
-                                      //       if (snapshots.data == null)
-                                      //         return CircularProgressIndicator();
-                                      //       return Text(
-                                      //         snapshots.data.documents[
-                                      //                     _currentJar]
-                                      //                 ["jarAmount"] ??
-                                      //             "0.01",
-                                      //         style:
-                                      //             TextStyle(fontSize: 36),
-                                      //       );
-                                      //     })
-                                      )),
+                                      child: StreamBuilder(
+                                          stream: FirebaseFirestore.instance
+                                              .collection("Ledger")
+                                              .snapshots(),
+                                          builder: (context, snapshots) {
+                                            if (snapshots.data == null)
+                                              return CircularProgressIndicator();
+                                            return Text(
+                                              snapshots.data.documents[
+                                                          _currentJar]
+                                                      ["jarAmount"] ??
+                                                  "0.01",
+                                              style: TextStyle(fontSize: 36),
+                                            );
+                                          }))),
                               ListTile(title: Center(child: Text("Baht"))),
                               TabBar(
                                 unselectedLabelColor: Color(0xFF41444B),
@@ -546,6 +545,21 @@ class _SixJarsRouteState extends State<SixJarsRoute>
                                                 },
                                               ),
                                             ),
+                                            ListTile(
+                                              // dense: true,
+                                              title: Text("Separate income"),
+                                              subtitle: autoJar
+                                                  ? Text("Automatically")
+                                                  : Text("Manually"),
+                                              trailing: Switch(
+                                                value: autoJar,
+                                                onChanged: (state) {
+                                                  setState(() {
+                                                    autoJar = !autoJar;
+                                                  });
+                                                },
+                                              ),
+                                            ),
                                             Row(
                                               mainAxisAlignment:
                                                   MainAxisAlignment.spaceEvenly,
@@ -562,6 +576,7 @@ class _SixJarsRouteState extends State<SixJarsRoute>
                                                             .add_circle_rounded,
                                                         color:
                                                             Color(0xffFDDB3A),
+                                                        size: 50,
                                                       ),
                                                     )),
                                               ],
