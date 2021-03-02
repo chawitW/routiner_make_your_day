@@ -12,6 +12,7 @@ class ToDoRoute extends StatefulWidget {
 
 class _ToDoRouteState extends State<ToDoRoute> with TickerProviderStateMixin {
   TabController dateController;
+  bool addToPlanner = false;
   String input = "";
   String priority;
   String groupTag = "";
@@ -34,6 +35,28 @@ class _ToDoRouteState extends State<ToDoRoute> with TickerProviderStateMixin {
     print("do sth");
 
     setState(() {});
+  }
+
+  _completedTask(documentSnapshot) {
+    DocumentReference documentReference = FirebaseFirestore.instance
+        .collection("CompletedTodo")
+        .doc(documentSnapshot["todoGroupTag"]);
+
+    Map<String, String> todos = {
+      "todoTitle": documentSnapshot["todoTitle"],
+      "todoPriority": documentSnapshot["todoPriority"],
+      "todoPriority_index": documentSnapshot["todoPriority_index"],
+      "todoGroupTag": documentSnapshot["todoGroupTag"],
+    };
+
+    documentReference.set({
+      "groupTag": documentSnapshot["todoGroupTag"],
+    });
+
+    documentReference
+        .collection("groupList")
+        .doc(documentSnapshot["todoTitle"])
+        .set(todos);
   }
 
   createTodos() {
@@ -106,8 +129,8 @@ class _ToDoRouteState extends State<ToDoRoute> with TickerProviderStateMixin {
                                   child: TextField(
                                     decoration: InputDecoration(
                                       border: OutlineInputBorder(
-                                          borderSide: BorderSide(
-                                              color: Colors.teal)),
+                                          borderSide:
+                                              BorderSide(color: Colors.teal)),
                                       hintText: 'Enter a thing to do',
                                       labelText: 'To do task',
                                     ),
@@ -159,6 +182,26 @@ class _ToDoRouteState extends State<ToDoRoute> with TickerProviderStateMixin {
                                     groupTag = value;
                                   },
                                 ),
+                                ListTile(
+                                  // dense: true,
+
+                                  title: Text("Also add this task"),
+                                  subtitle: Text("into Planner"),
+                                  trailing: Switch(
+                                    value: addToPlanner,
+                                    onChanged: (state) {
+                                      setState(() {
+                                        addToPlanner = !addToPlanner;
+                                      });
+                                    },
+                                  ),
+                                ),
+                                if (addToPlanner)
+                                  Column(
+                                    children: [
+                                      //additional required Planner form. //activity and time
+                                    ],
+                                  ),
                                 Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceEvenly,
@@ -184,9 +227,11 @@ class _ToDoRouteState extends State<ToDoRoute> with TickerProviderStateMixin {
                                         },
                                         child: Container(
                                           // color: Colors.yellow,
+                                          margin: EdgeInsets.only(top: 10),
                                           child: Icon(
                                             Icons.add_circle_rounded,
                                             color: Color(0xffFDDB3A),
+                                            size: 50,
                                           ),
                                         )),
                                   ],
@@ -240,6 +285,7 @@ class _ToDoRouteState extends State<ToDoRoute> with TickerProviderStateMixin {
                           child: Card(
                             color: Color(0xffF6F4E6),
                             child: ExpansionTile(
+                              initiallyExpanded: true,
                               title: Text(
                                 documentSnapshot["groupTag"],
                                 textAlign: TextAlign.left,
@@ -272,12 +318,13 @@ class _ToDoRouteState extends State<ToDoRoute> with TickerProviderStateMixin {
                                                       .data.documents[index];
                                               return Dismissible(
                                                   onDismissed: (direction) {
+                                                    _completedTask(
+                                                        documentSnapshot);
                                                     deleteTodos(
-                                                      documentSnapshot[
-                                                          "todoTitle"],
-                                                      documentSnapshot[
-                                                          "todoGroupTag"],
-                                                    );
+                                                        documentSnapshot[
+                                                            "todoTitle"],
+                                                        documentSnapshot[
+                                                            "todoGroupTag"]);
                                                   },
                                                   key: Key(documentSnapshot[
                                                       "todoTitle"]),

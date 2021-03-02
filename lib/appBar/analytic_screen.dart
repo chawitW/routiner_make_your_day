@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 void main() {
   runApp(MaterialApp(home: AnalyticsPage()));
@@ -17,6 +18,12 @@ class _SettingPageState extends State<AnalyticsPage> {
     "Investment jar",
     "Self gift jar",
     "Donation jar"
+  ];
+  List listMatrix = [
+    "Urgent and important",
+    "Not urgent and important",
+    "Urgent and not important",
+    "Not urgent and not important"
   ];
   @override
   Widget build(BuildContext context) {
@@ -43,7 +50,69 @@ class _SettingPageState extends State<AnalyticsPage> {
                 child: ExpansionTile(
                   // initiallyExpanded: true,
                   title: Text("Completed task"),
-                  children: [Text("This is completed task")],
+                  children: [
+                    StreamBuilder(
+                      stream: FirebaseFirestore.instance
+                          .collection("CompletedTodo")
+                          .snapshots(),
+                      builder: (context, snapshots) {
+                        if (snapshots.data == null) {
+                          return CircularProgressIndicator();
+                        } else {
+                          return Container(
+                            margin: EdgeInsets.only(bottom: 10, top: 5),
+                            child: ListView.builder(
+                                shrinkWrap: true,
+                                itemCount: snapshots.data.documents.length,
+                                itemBuilder: (context, index) {
+                                  DocumentSnapshot documentSnapshot =
+                                      snapshots.data.documents[index];
+                                  return Card(
+                                    color: Color(0xffF6F4E6),
+                                    margin: EdgeInsets.only(
+                                        left: 10, right: 10, top: 4),
+                                    child: ExpansionTile(
+                                      initiallyExpanded: true,
+                                      title: Text(documentSnapshot["groupTag"],
+                                          style: TextStyle(fontSize: 15)),
+                                      children: [
+                                        StreamBuilder(
+                                          stream: FirebaseFirestore.instance
+                                              .collection("CompletedTodo")
+                                              .doc(documentSnapshot["groupTag"])
+                                              .collection("groupList")
+                                              .snapshots(),
+                                          builder: (context, snapshots) {
+                                            if (snapshots.data == null) {
+                                              return CircularProgressIndicator();
+                                            } else {
+                                              return Container(
+                                                child: ListView.builder(
+                                                  shrinkWrap: true,
+                                                  itemCount: snapshots
+                                                      .data.documents.length,
+                                                  itemBuilder:
+                                                      (context, index) {
+                                                         DocumentSnapshot
+                                                  documentSnapshot = snapshots
+                                                      .data.documents[index];
+                                                    return Text(documentSnapshot[
+                                                        "todoTitle"]);
+                                                  },
+                                                ),
+                                              );
+                                            }
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }),
+                          );
+                        }
+                      },
+                    ),
+                  ],
                 ),
               ),
               Card(

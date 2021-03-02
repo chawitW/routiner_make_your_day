@@ -22,6 +22,9 @@ class _SixJarsRouteState extends State<SixJarsRoute>
   String details = "";
   String date = "";
   String time = "";
+  bool _validate = false;
+  final _text = TextEditingController();
+  bool incomeDialog;
 
   // var now = new DateTime.now();
   // var berlinWallFell = new DateTime.utc(1989, 11, 9);
@@ -36,10 +39,19 @@ class _SixJarsRouteState extends State<SixJarsRoute>
   // int _currentPage = 0;
   TabController jarController;
   int _currentJar = 0;
+  List<int> _currentAmount = [0, 0, 0, 0, 0, 0];
   // var stmType_index = 0;
   String amount = "0.00";
   String stmType = "";
   bool autoJar = true;
+  List jarIcon = [
+    Icons.account_balance_wallet_rounded,
+    Icons.school_rounded,
+    Icons.account_balance_rounded,
+    Icons.trending_up_rounded,
+    Icons.card_travel_rounded,
+    Icons.card_giftcard_rounded,
+  ];
   List jarName = [
     "Need jar",
     "Education jar",
@@ -47,6 +59,14 @@ class _SixJarsRouteState extends State<SixJarsRoute>
     "Investment jar",
     "Self reward jar",
     "Donation jar",
+  ];
+  List percentage = [
+    "55",
+    "10",
+    "10",
+    "10",
+    "10",
+    "5",
   ];
 
   // _asyncMethod() async {
@@ -77,33 +97,81 @@ class _SixJarsRouteState extends State<SixJarsRoute>
   void dispose() {
     jarController.dispose();
     animationController.dispose();
+    _text.dispose();
     super.dispose();
   }
 
-  createLedgers() {
-    DocumentReference documentReference = FirebaseFirestore.instance
-        .collection("Ledger")
-        .doc(jarName[_currentJar]);
+  createSixJars() {
+    for (int i = 0; i < jarName.length; i++) {
+      DocumentReference documentReference =
+          FirebaseFirestore.instance.collection("Ledger").doc(jarName[i]);
+      Map<String, String> amount = {
+        "jarAmount": "0",
+        "jarNumber": i.toString(),
+      };
+      documentReference.set(amount);
+    }
+  }
 
-    // Map<String, String> amount = {
-    //   "jarAmount": "6.00",
-    //   "jarNumber": _currentJar.toString(),
-    // };
-    // documentReference.set(amount);
-    //mock data
+  _updateAmount(incomeDialog, autoJar) {
+    if (autoJar && incomeDialog) {
+      for (int i = 0; i < jarName.length; i++) {
+        DocumentReference documentReference =
+            FirebaseFirestore.instance.collection("Ledger").doc(jarName[i]);
 
-    Map<String, String> statement = {
-      "ledgerDetails": details,
-      "ledgerDate": date,
-      "ledgerTime": time,
-      "ledgerType": stmType,
-      "ledgerAmount": amount,
-    };
+        documentReference.set({
+          "jarAmount":
+              ((int.parse(amount) * int.parse(percentage[i]) / 100).round() +
+                      _currentAmount[i])
+                  .toString(),
+          "jarNumber": i.toString(),
+        });
+      }
+    } else if (!autoJar && incomeDialog) {
+    } else {
+      DocumentReference documentReference = FirebaseFirestore.instance
+          .collection("Ledger")
+          .doc(jarName[_currentJar]);
 
-    documentReference.set({
-      "jarAmount": "0.00",
-    });
-    documentReference.collection("statementList").doc(details).set(statement);
+      documentReference.set({
+        "jarAmount":
+            (_currentAmount[_currentJar] - (int.parse(amount))).toString(),
+        "jarNumber": _currentJar.toString(),
+      });
+    }
+  }
+
+  createLedgers(incomeDialog, autoJar) {
+    if (incomeDialog && autoJar) {
+      for (int i = 0; i < jarName.length; i++) {
+        DocumentReference documentReference =
+            FirebaseFirestore.instance.collection("Ledger").doc(jarName[i]);
+
+        documentReference.collection("statementList").doc().set({
+          "ledgerDetails": details,
+          "ledgerDate": date,
+          "ledgerTime": time,
+          "ledgerType": stmType,
+          "ledgerAmount": (int.parse(amount) * int.parse(percentage[i]) / 100)
+              .round()
+              .toString(),
+        });
+      }
+    } else if (incomeDialog && !autoJar) {
+    } else {
+      DocumentReference documentReference = FirebaseFirestore.instance
+          .collection("Ledger")
+          .doc(jarName[_currentJar]);
+
+      Map<String, String> statement = {
+        "ledgerDetails": details,
+        "ledgerDate": date,
+        "ledgerTime": time,
+        "ledgerType": stmType,
+        "ledgerAmount": amount,
+      };
+      documentReference.collection("statementList").doc().set(statement);
+    }
   }
 
   @override
@@ -123,6 +191,17 @@ class _SixJarsRouteState extends State<SixJarsRoute>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: <Widget>[
+                        /*create initial amount btn*/
+                        // Center(
+                        //   child: IconButton(
+                        //     icon: Text("create mock up"),
+                        //     onPressed: () {
+                        //       setState(() {
+                        //         createSixJars();
+                        //       });
+                        //     },
+                        //   ),
+                        // ),
                         Card(
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8)),
@@ -136,21 +215,27 @@ class _SixJarsRouteState extends State<SixJarsRoute>
                                 title:
                                     Center(child: Text(jarName[_currentJar])),
                               ),
-                              //problems is cannot create amount of each jar at the first time
                               ListTile(
                                   title: Center(
                                       child: StreamBuilder(
                                           stream: FirebaseFirestore.instance
                                               .collection("Ledger")
+                                              .orderBy("jarNumber")
                                               .snapshots(),
                                           builder: (context, snapshots) {
                                             if (snapshots.data == null)
                                               return CircularProgressIndicator();
+                                            for (int i = 0; i < 6; i++) {
+                                              _currentAmount[i] = int.parse(
+                                                  snapshots.data.documents[i]
+                                                      ["jarAmount"]);
+                                              // print(_currentAmount[i]);
+                                            }
                                             return Text(
                                               snapshots.data.documents[
                                                           _currentJar]
-                                                      ["jarAmount"] ??
-                                                  "0.01",
+                                                      ["jarAmount"] +
+                                                  ".00",
                                               style: TextStyle(fontSize: 36),
                                             );
                                           }))),
@@ -160,37 +245,12 @@ class _SixJarsRouteState extends State<SixJarsRoute>
                                 indicatorColor: Color(0xffFDDB3A),
                                 controller: jarController,
                                 tabs: <Tab>[
-                                  Tab(
-                                      icon: Icon(
-                                          Icons.account_balance_wallet_rounded,
-                                          color: _currentJar == 0
-                                              ? Color(0xffFDDB3A)
-                                              : Color(0xFF41444B))),
-                                  Tab(
-                                      icon: Icon(Icons.school_rounded,
-                                          color: _currentJar == 1
-                                              ? Color(0xffFDDB3A)
-                                              : Color(0xFF41444B))),
-                                  Tab(
-                                      icon: Icon(Icons.account_balance_rounded,
-                                          color: _currentJar == 2
-                                              ? Color(0xffFDDB3A)
-                                              : Color(0xFF41444B))),
-                                  Tab(
-                                      icon: Icon(Icons.trending_up_rounded,
-                                          color: _currentJar == 3
-                                              ? Color(0xffFDDB3A)
-                                              : Color(0xFF41444B))),
-                                  Tab(
-                                      icon: Icon(Icons.card_travel_rounded,
-                                          color: _currentJar == 4
-                                              ? Color(0xffFDDB3A)
-                                              : Color(0xFF41444B))),
-                                  Tab(
-                                      icon: Icon(Icons.card_giftcard_rounded,
-                                          color: _currentJar == 5
-                                              ? Color(0xffFDDB3A)
-                                              : Color(0xFF41444B))),
+                                  for (int i = 0; i < jarIcon.length; i++)
+                                    Tab(
+                                        icon: Icon(jarIcon[i],
+                                            color: _currentJar == i
+                                                ? Color(0xffFDDB3A)
+                                                : Color(0xFF41444B))),
                                 ],
                                 onTap: (index) {
                                   _currentJar = index;
@@ -268,8 +328,8 @@ class _SixJarsRouteState extends State<SixJarsRoute>
                                                         BorderRadius.circular(
                                                             8)),
                                                 child: ListTile(
+                                                  dense: true,
                                                   title: Container(
-                                                    height: 30,
                                                     child: Text(documentSnapshot[
                                                                 "ledgerDetails"] ==
                                                             ""
@@ -279,16 +339,17 @@ class _SixJarsRouteState extends State<SixJarsRoute>
                                                             "ledgerDetails"]),
                                                   ),
                                                   trailing: Container(
-                                                    height: 30,
                                                     child: Text(documentSnapshot[
                                                                 "ledgerType"] ==
                                                             "Income"
                                                         ? "+" +
                                                             documentSnapshot[
-                                                                "ledgerAmount"]
+                                                                "ledgerAmount"] +
+                                                            ".00"
                                                         : "-" +
                                                             documentSnapshot[
-                                                                "ledgerAmount"]),
+                                                                "ledgerAmount"] +
+                                                            ".00"),
                                                   ),
                                                 ),
                                               ),
@@ -333,122 +394,11 @@ class _SixJarsRouteState extends State<SixJarsRoute>
                             color: Color(0xffF6F4E6),
                           ),
                           onClick: () {
-                            showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return StatefulBuilder(
-                                    builder: (context, setState) {
-                                      stmType = "Outgo";
-                                      return AlertDialog(
-                                        backgroundColor: Color(0xffF6F4E6),
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(8)),
-                                        title: Center(child: Text("OUTGO")),
-                                        content: SingleChildScrollView(
-                                          child: Column(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Container(
-                                                margin: EdgeInsets.symmetric(
-                                                    vertical: 5),
-                                                child: TextField(
-                                                  decoration: InputDecoration(
-                                                    border: OutlineInputBorder(
-                                                        borderSide: BorderSide(
-                                                            color:
-                                                                Colors.teal)),
-                                                    hintText:
-                                                        'amount statement',
-                                                    labelText: 'Amount',
-                                                  ),
-                                                  onChanged: (String value) {
-                                                    amount = value;
-                                                  },
-                                                ),
-                                              ),
-                                              Container(
-                                                margin: EdgeInsets.symmetric(
-                                                    vertical: 5),
-                                                child: TextField(
-                                                  decoration: InputDecoration(
-                                                    border: OutlineInputBorder(
-                                                        borderSide: BorderSide(
-                                                            color:
-                                                                Colors.teal)),
-                                                    hintText:
-                                                        'amount statement',
-                                                    labelText: 'Details',
-                                                  ),
-                                                  onChanged: (String value) {
-                                                    details = value;
-                                                  },
-                                                ),
-                                              ),
-                                              Container(
-                                                margin: EdgeInsets.symmetric(
-                                                    vertical: 5),
-                                                child: TextField(
-                                                  decoration: InputDecoration(
-                                                    border: OutlineInputBorder(
-                                                        borderSide: BorderSide(
-                                                            color:
-                                                                Colors.teal)),
-                                                    hintText:
-                                                        'amount statement',
-                                                    labelText: 'Date',
-                                                  ),
-                                                  onChanged: (String value) {
-                                                    date = value;
-                                                  },
-                                                ),
-                                              ),
-                                              Container(
-                                                margin: EdgeInsets.symmetric(
-                                                    vertical: 5),
-                                                child: TextField(
-                                                  decoration: InputDecoration(
-                                                    border: OutlineInputBorder(
-                                                        borderSide: BorderSide(
-                                                            color:
-                                                                Colors.teal)),
-                                                    hintText:
-                                                        'amount statement',
-                                                    labelText: 'Time',
-                                                  ),
-                                                  onChanged: (String value) {
-                                                    time = value;
-                                                  },
-                                                ),
-                                              ),
-                                              Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceEvenly,
-                                                children: <Widget>[
-                                                  FlatButton(
-                                                      onPressed: () {
-                                                        Navigator.of(context)
-                                                            .pop();
-                                                        createLedgers()();
-                                                      },
-                                                      child: Container(
-                                                        child: Icon(
-                                                          Icons
-                                                              .add_circle_rounded,
-                                                          color:
-                                                              Color(0xffFDDB3A),
-                                                        ),
-                                                      )),
-                                                ],
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  );
-                                });
+                            setState(() {
+                              incomeDialog = false;
+                              details = "";
+                              _showDialog(incomeDialog);
+                            });
                           },
                         ),
                       ),
@@ -465,129 +415,9 @@ class _SixJarsRouteState extends State<SixJarsRoute>
                           color: Color(0xffF6F4E6),
                         ),
                         onClick: () {
-                          showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return StatefulBuilder(
-                                  builder: (context, setState) {
-                                    stmType = "Income";
-                                    return AlertDialog(
-                                      backgroundColor: Color(0xffF6F4E6),
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(8)),
-                                      title: Center(child: Text("INCOME")),
-                                      content: SingleChildScrollView(
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Container(
-                                              margin: EdgeInsets.symmetric(
-                                                  vertical: 5),
-                                              child: TextField(
-                                                decoration: InputDecoration(
-                                                  border: OutlineInputBorder(
-                                                      borderSide: BorderSide(
-                                                          color: Colors.teal)),
-                                                  hintText: 'amount statement',
-                                                  labelText: 'Amount',
-                                                ),
-                                                onChanged: (String value) {
-                                                  amount = value;
-                                                },
-                                              ),
-                                            ),
-                                            Container(
-                                              margin: EdgeInsets.symmetric(
-                                                  vertical: 5),
-                                              child: TextField(
-                                                decoration: InputDecoration(
-                                                  border: OutlineInputBorder(
-                                                      borderSide: BorderSide(
-                                                          color: Colors.teal)),
-                                                  hintText: 'amount statement',
-                                                  labelText: 'Details',
-                                                ),
-                                                onChanged: (String value) {
-                                                  details = value;
-                                                },
-                                              ),
-                                            ),
-                                            Container(
-                                              margin: EdgeInsets.symmetric(
-                                                  vertical: 5),
-                                              child: TextField(
-                                                decoration: InputDecoration(
-                                                  border: OutlineInputBorder(
-                                                      borderSide: BorderSide(
-                                                          color: Colors.teal)),
-                                                  hintText: 'amount statement',
-                                                  labelText: 'Date',
-                                                ),
-                                                onChanged: (String value) {
-                                                  date = value;
-                                                },
-                                              ),
-                                            ),
-                                            Container(
-                                              margin: EdgeInsets.symmetric(
-                                                  vertical: 5),
-                                              child: TextField(
-                                                decoration: InputDecoration(
-                                                  border: OutlineInputBorder(
-                                                      borderSide: BorderSide(
-                                                          color: Colors.teal)),
-                                                  hintText: 'amount statement',
-                                                  labelText: 'Time',
-                                                ),
-                                                onChanged: (String value) {
-                                                  time = value;
-                                                },
-                                              ),
-                                            ),
-                                            ListTile(
-                                              // dense: true,
-                                              title: Text("Separate income"),
-                                              subtitle: autoJar
-                                                  ? Text("Automatically")
-                                                  : Text("Manually"),
-                                              trailing: Switch(
-                                                value: autoJar,
-                                                onChanged: (state) {
-                                                  setState(() {
-                                                    autoJar = !autoJar;
-                                                  });
-                                                },
-                                              ),
-                                            ),
-                                            Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.spaceEvenly,
-                                              children: <Widget>[
-                                                FlatButton(
-                                                    onPressed: () {
-                                                      Navigator.of(context)
-                                                          .pop();
-                                                      createLedgers()();
-                                                    },
-                                                    child: Container(
-                                                      child: Icon(
-                                                        Icons
-                                                            .add_circle_rounded,
-                                                        color:
-                                                            Color(0xffFDDB3A),
-                                                        size: 50,
-                                                      ),
-                                                    )),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                );
-                              });
+                          details = "";
+                          incomeDialog = true;
+                          _showDialog(incomeDialog);
                         },
                       ),
                     ),
@@ -612,6 +442,165 @@ class _SixJarsRouteState extends State<SixJarsRoute>
           ),
         ));
   }
+
+  _showDialog(incomeDialog) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return StatefulBuilder(
+            builder: (context, setState) {
+              stmType = incomeDialog ? "Income" : "Outgo";
+              animationController.reverse();
+              return AlertDialog(
+                backgroundColor: Color(0xffF6F4E6),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8)),
+                title: Center(
+                    child: incomeDialog ? Text("INCOME") : Text("OUTGO")),
+                content: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        margin: EdgeInsets.symmetric(vertical: 5),
+                        child: TextField(
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                                borderSide: BorderSide(color: Colors.teal)),
+                            hintText: 'amount statement',
+                            labelText: 'Amount',
+                          ),
+                          onChanged: (String value) {
+                            amount = value;
+                          },
+                        ),
+                      ),
+                      Container(
+                        margin: EdgeInsets.symmetric(vertical: 5),
+                        child: TextField(
+                          // controller: _text,
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                                borderSide: BorderSide(color: Colors.teal)),
+                            hintText: 'amount statement',
+                            labelText: 'Details',
+                            // errorText:
+                            //     _validate ? "Please enter some details" : null,
+                          ),
+                          onChanged: (String value) {
+                            details = value;
+                          },
+                        ),
+                      ),
+                      Container(
+                        margin: EdgeInsets.symmetric(vertical: 5),
+                        child: TextField(
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                                borderSide: BorderSide(color: Colors.teal)),
+                            hintText: 'amount statement',
+                            labelText: 'Date',
+                          ),
+                          onChanged: (String value) {
+                            date = value;
+                          },
+                        ),
+                      ),
+                      Container(
+                        margin: EdgeInsets.symmetric(vertical: 5),
+                        child: TextField(
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                                borderSide: BorderSide(color: Colors.teal)),
+                            hintText: 'amount statement',
+                            labelText: 'Time',
+                          ),
+                          onChanged: (String value) {
+                            time = value;
+                          },
+                        ),
+                      ),
+                      if (incomeDialog)
+                        ListTile(
+                          // dense: true,
+                          title: Text("Separate income"),
+                          subtitle: autoJar
+                              ? Text("Automatically")
+                              : Text("Manually"),
+                          trailing: Switch(
+                            value: autoJar,
+                            onChanged: (state) {
+                              setState(() {
+                                autoJar = !autoJar;
+                              });
+                            },
+                          ),
+                        ),
+                      if (!autoJar)
+                        Column(
+                          children: [
+                            for (int i = 0; i < jarName.length; i++)
+                              listOfEachJar(jarName[i], percentage[i]),
+                          ],
+                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: <Widget>[
+                          FlatButton(
+                              onPressed: () {
+                                setState(() {
+                                  Navigator.of(context).pop();
+                                  _updateAmount(incomeDialog, autoJar);
+                                  createLedgers(incomeDialog, autoJar);
+                                });
+                              },
+                              child: Container(
+                                child: Icon(
+                                  Icons.add_circle_rounded,
+                                  color: Color(0xffFDDB3A),
+                                  size: 50,
+                                ),
+                              )),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          );
+        });
+  }
+}
+
+Widget listOfEachJar(jarName, percentage) {
+  return ListTile(
+    title: Text(jarName),
+    trailing: Container(
+      width: 100,
+      child: Row(
+        children: <Widget>[
+          Expanded(
+            child: ListView(
+              children: [
+                Container(
+                  margin: EdgeInsets.only(right: 10),
+                  child: TextField(
+                    textAlign: TextAlign.center,
+                    decoration: InputDecoration(
+                      hintText: percentage,
+                    ),
+                    onChanged: (input) {},
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(margin: EdgeInsets.only(right: 10), child: Text("%")),
+        ],
+      ),
+    ),
+  );
 }
 
 class CircularButton extends StatelessWidget {

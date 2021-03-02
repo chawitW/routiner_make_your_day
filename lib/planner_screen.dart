@@ -21,6 +21,7 @@ class PlannerPage extends StatefulWidget {
 class _PlannerState extends State<PlannerPage> with TickerProviderStateMixin {
   CalendarController _controller;
   TabController dateController;
+  bool addToTodo = false;
   String input = "";
   String activity = "";
   int activity_index;
@@ -165,6 +166,26 @@ class _PlannerState extends State<PlannerPage> with TickerProviderStateMixin {
                               },
                             ),
                           ),
+                          ListTile(
+                            // dense: true,
+
+                            title: Text("Also add this"),
+                            subtitle: Text("into To do list"),
+                            trailing: Switch(
+                              value: addToTodo,
+                              onChanged: (state) {
+                                setState(() {
+                                  addToTodo = !addToTodo;
+                                });
+                              },
+                            ),
+                          ),
+                          if (addToTodo)
+                            Column(
+                              children: [
+                                //additional required To do form. //priority and group
+                              ],
+                            ),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: <Widget>[
@@ -190,10 +211,12 @@ class _PlannerState extends State<PlannerPage> with TickerProviderStateMixin {
                                     setState(() {});
                                   },
                                   child: Container(
+                                    margin: EdgeInsets.only(top: 10),
                                     // color: Colors.yellow,
                                     child: Icon(
                                       Icons.add_circle_rounded,
                                       color: Color(0xffFDDB3A),
+                                      size: 50,
                                     ),
                                   )),
                             ],
@@ -212,6 +235,7 @@ class _PlannerState extends State<PlannerPage> with TickerProviderStateMixin {
       ),
       backgroundColor: Color(0xff52575D),
       body: SingleChildScrollView(
+        // physics: NeverScrollableScrollPhysics(),
         child: Container(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -287,6 +311,7 @@ class _PlannerState extends State<PlannerPage> with TickerProviderStateMixin {
                       return CircularProgressIndicator();
                     } else {
                       return ListView.builder(
+                          physics: NeverScrollableScrollPhysics(),
                           padding: EdgeInsets.only(top: 4),
                           shrinkWrap: true,
                           itemCount: snapshots.data.documents.length,
