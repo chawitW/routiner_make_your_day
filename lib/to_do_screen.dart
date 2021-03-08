@@ -83,17 +83,22 @@ class _ToDoRouteState extends State<ToDoRoute> with TickerProviderStateMixin {
     });
   }
 
-  deleteTodos(item, tag) {
+  deleteTodos(item, tag) async {
     DocumentReference documentReference =
         FirebaseFirestore.instance.collection("TodoList").doc(tag);
 
+    // final int tagLength =
+    //     await documentReference.collection("groupList").snapshots().length;
+    // print(documentReference.collection("groupList").snapshots().length);
+    // if (tagLength <= 0)
+    //   documentReference.delete();
+    // else
+    //   print("tagLength is $tagLength");
     documentReference
         .collection("groupList")
         .doc(item)
         .delete()
-        .whenComplete(() {
-      print("deleted");
-    });
+        .whenComplete(() {});
   }
 
   @override
@@ -185,8 +190,8 @@ class _ToDoRouteState extends State<ToDoRoute> with TickerProviderStateMixin {
                                 ListTile(
                                   // dense: true,
 
-                                  title: Text("Also add this task"),
-                                  subtitle: Text("into Planner"),
+                                  title: Text("Add this task"),
+                                  subtitle: Text("to Planner"),
                                   trailing: Switch(
                                     value: addToPlanner,
                                     onChanged: (state) {
@@ -282,113 +287,190 @@ class _ToDoRouteState extends State<ToDoRoute> with TickerProviderStateMixin {
                             snapshots.data.documents[index];
                         return Container(
                           key: ValueKey(index),
-                          child: Card(
-                            color: Color(0xffF6F4E6),
-                            child: ExpansionTile(
-                              initiallyExpanded: true,
-                              title: Text(
-                                documentSnapshot["groupTag"],
-                                textAlign: TextAlign.left,
-                                style: TextStyle(fontSize: 20),
-                              ),
-                              children: [
-                                StreamBuilder(
-                                  stream: FirebaseFirestore.instance
-                                      .collection("TodoList")
-                                      .doc(documentSnapshot["groupTag"])
-                                      .collection("groupList")
-                                      .orderBy("todoPriority_index")
-                                      .snapshots(),
-                                  builder: (context, snapshots) {
-                                    if (snapshots.data == null) {
-                                      return CircularProgressIndicator();
-                                    } else {
-                                      return Container(
-                                        margin:
-                                            EdgeInsets.only(bottom: 10, top: 5),
-                                        child: ListView.builder(
-                                            physics:
-                                                const NeverScrollableScrollPhysics(),
-                                            shrinkWrap: true,
-                                            itemCount:
-                                                snapshots.data.documents.length,
-                                            itemBuilder: (context, index) {
-                                              DocumentSnapshot
-                                                  documentSnapshot = snapshots
-                                                      .data.documents[index];
-                                              return Dismissible(
-                                                  onDismissed: (direction) {
-                                                    _completedTask(
-                                                        documentSnapshot);
-                                                    deleteTodos(
-                                                        documentSnapshot[
-                                                            "todoTitle"],
-                                                        documentSnapshot[
-                                                            "todoGroupTag"]);
+                          child: Dismissible(
+                            direction: DismissDirection.startToEnd,
+                            onDismissed: (direction) {
+                              // if (snapshots.data.documents.length <= 0)
+                              //   return showDialog(
+                              //       context: context,
+                              //       builder: (BuildContext context) {
+
+                              //         Navigator.of(context).pop();
+                              //         return AlertDialog(
+                              //           content: Text(
+                              //               "Can not remove tag, task(s) still avaliable."),
+                              //         );
+
+                              //       });
+                              return showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      content: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text("Remove " +
+                                              documentSnapshot["groupTag"] +
+                                              " ?"),
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Expanded(
+                                                child: IconButton(
+                                                  icon: Text("Dismiss"),
+                                                  onPressed: () {
+                                                    setState(() {});
+                                                    Navigator.of(context).pop();
                                                   },
-                                                  key: Key(documentSnapshot[
-                                                      "todoTitle"]),
-                                                  child: Container(
-                                                    child: Card(
-                                                      color: documentSnapshot[
-                                                                  "todoPriority"] ==
-                                                              listMatrix[0]
-                                                          ? Color(0xffFA7F72)
-                                                          : documentSnapshot[
-                                                                      "todoPriority"] ==
-                                                                  listMatrix[1]
-                                                              ? Color(
-                                                                  0xff7FDBDA)
-                                                              : documentSnapshot[
-                                                                          "todoPriority"] ==
-                                                                      listMatrix[
-                                                                          2]
-                                                                  ? Color(
-                                                                      0xff8675A9)
-                                                                  : documentSnapshot[
-                                                                              "todoPriority"] ==
-                                                                          listMatrix[
-                                                                              3]
-                                                                      ? Color(
-                                                                          0xffADE498)
-                                                                      : Color(
-                                                                          0xffF6F4E6),
-                                                      elevation: 4,
-                                                      margin: EdgeInsets.only(
-                                                        right: 10,
-                                                        left: 10,
-                                                        top: 4,
-                                                      ),
-                                                      shape:
-                                                          RoundedRectangleBorder(
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                          8)),
-                                                      child: ListTile(
-                                                        title: Text(
-                                                            documentSnapshot[
-                                                                "todoTitle"]),
-                                                        trailing: IconButton(
-                                                          icon: Icon(
-                                                              Icons.delete),
-                                                          onPressed: () {
-                                                            deleteTodos(
-                                                                documentSnapshot[
-                                                                    "todoTitle"],
-                                                                documentSnapshot[
-                                                                    "todoGroupTag"]);
-                                                          },
+                                                ),
+                                              ),
+                                              Expanded(
+                                                child: IconButton(
+                                                  icon: Text(
+                                                    "Remove",
+                                                    style: TextStyle(
+                                                        color:
+                                                            Colors.redAccent),
+                                                  ),
+                                                  onPressed: () {
+                                                    // for (int i = 0;
+                                                    //     i <
+                                                    //         snapshots
+                                                    //             .data
+                                                    //             .documents
+                                                    //             .length;
+                                                    //     i++)
+                                                    //   deleteTodos(
+                                                    //       documentSnapshot[
+                                                    //           "todoTitle"],
+                                                    //       documentSnapshot[
+                                                    //           "todoGroupTag"]);
+                                                    FirebaseFirestore.instance
+                                                        .collection("TodoList")
+                                                        .doc(documentSnapshot[
+                                                            "groupTag"])
+                                                        .delete();
+                                                    Navigator.of(context).pop();
+                                                    setState(() {});
+                                                  },
+                                                ),
+                                              ),
+                                            ],
+                                          )
+                                        ],
+                                      ),
+                                    );
+                                  });
+                            },
+                            key: UniqueKey(),
+                            child: Card(
+                              color: Color(0xffF6F4E6),
+                              child: ExpansionTile(
+                                initiallyExpanded: true,
+                                title: Text(
+                                  documentSnapshot["groupTag"],
+                                  textAlign: TextAlign.left,
+                                  style: TextStyle(fontSize: 20),
+                                ),
+                                children: [
+                                  StreamBuilder(
+                                    stream: FirebaseFirestore.instance
+                                        .collection("TodoList")
+                                        .doc(documentSnapshot["groupTag"])
+                                        .collection("groupList")
+                                        .orderBy("todoPriority_index")
+                                        .snapshots(),
+                                    builder: (context, snapshots) {
+                                      if (snapshots.data == null) {
+                                        return CircularProgressIndicator();
+                                      } else {
+                                        return Container(
+                                          margin: EdgeInsets.only(
+                                              bottom: 10, top: 5),
+                                          child: ListView.builder(
+                                              physics:
+                                                  const NeverScrollableScrollPhysics(),
+                                              shrinkWrap: true,
+                                              itemCount: snapshots
+                                                  .data.documents.length,
+                                              itemBuilder: (context, index) {
+                                                DocumentSnapshot
+                                                    documentSnapshot = snapshots
+                                                        .data.documents[index];
+                                                return Dismissible(
+                                                    onDismissed: (direction) {
+                                                      _completedTask(
+                                                          documentSnapshot);
+                                                      deleteTodos(
+                                                          documentSnapshot[
+                                                              "todoTitle"],
+                                                          documentSnapshot[
+                                                              "todoGroupTag"]);
+                                                    },
+                                                    key: Key(documentSnapshot[
+                                                        "todoTitle"]),
+                                                    child: Container(
+                                                      child: Card(
+                                                        color: documentSnapshot[
+                                                                    "todoPriority"] ==
+                                                                listMatrix[0]
+                                                            ? Color(0xffFA7F72)
+                                                            : documentSnapshot[
+                                                                        "todoPriority"] ==
+                                                                    listMatrix[
+                                                                        1]
+                                                                ? Color(
+                                                                    0xff7FDBDA)
+                                                                : documentSnapshot["todoPriority"] ==
+                                                                        listMatrix[
+                                                                            2]
+                                                                    ? Color(
+                                                                        0xff8675A9)
+                                                                    : documentSnapshot["todoPriority"] ==
+                                                                            listMatrix[
+                                                                                3]
+                                                                        ? Color(
+                                                                            0xffADE498)
+                                                                        : Color(
+                                                                            0xffF6F4E6),
+                                                        elevation: 4,
+                                                        margin: EdgeInsets.only(
+                                                          right: 10,
+                                                          left: 10,
+                                                          top: 4,
+                                                        ),
+                                                        shape:
+                                                            RoundedRectangleBorder(
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            8)),
+                                                        child: ListTile(
+                                                          title: Text(
+                                                              documentSnapshot[
+                                                                  "todoTitle"]),
+                                                          trailing: IconButton(
+                                                            icon: Icon(
+                                                                Icons.delete),
+                                                            onPressed: () {
+                                                              deleteTodos(
+                                                                  documentSnapshot[
+                                                                      "todoTitle"],
+                                                                  documentSnapshot[
+                                                                      "todoGroupTag"]);
+                                                            },
+                                                          ),
                                                         ),
                                                       ),
-                                                    ),
-                                                  ));
-                                            }),
-                                      );
-                                    }
-                                  },
-                                ),
-                              ],
+                                                    ));
+                                              }),
+                                        );
+                                      }
+                                    },
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         );

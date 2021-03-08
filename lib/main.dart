@@ -7,7 +7,6 @@ import 'package:project_1/six_jars_screen.dart';
 import 'package:project_1/to_do_screen.dart';
 
 import 'package:project_1/appBar/setting_screen.dart';
-import 'package:project_1/appBar/about_screen.dart';
 import 'package:project_1/appBar/analytic_screen.dart';
 import 'package:project_1/appBar/theory_screen.dart';
 
@@ -80,7 +79,12 @@ class _HomePageState extends State<HomePage> {
             padding: EdgeInsets.zero,
             children: <Widget>[
               ListTile(
-                title: Text('Summary'),
+                title: Row(
+                  children: [
+                    Icon(Icons.insert_chart),
+                    Text(' Summary'),
+                  ],
+                ),
                 onTap: () {
                   Navigator.of(context).pop();
                   Navigator.push(context,
@@ -88,7 +92,12 @@ class _HomePageState extends State<HomePage> {
                 },
               ),
               ListTile(
-                title: Text('Theories'),
+                title: Row(
+                  children: [
+                    Icon(Icons.book),
+                    Text(' Theories'),
+                  ],
+                ),
                 onTap: () {
                   Navigator.of(context).pop();
                   Navigator.push(context,
@@ -96,7 +105,12 @@ class _HomePageState extends State<HomePage> {
                 },
               ),
               ListTile(
-                title: Text('Setting'),
+                title: Row(
+                  children: [
+                    Icon(Icons.settings),
+                    Text(' Setting'),
+                  ],
+                ),
                 onTap: () {
                   Navigator.of(context).pop();
                   Navigator.push(context,

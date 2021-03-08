@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 
 // import 'package:intl/date_symbol_data_local.dart';
 // initializeDateFormatting('fr_FR', null) async .then((_) => runMyCode());
@@ -20,9 +21,9 @@ class _SixJarsRouteState extends State<SixJarsRoute>
   Animation rotationAnimation;
 
   String details = "";
-  String date = "";
-  String time = "";
-  bool _validate = false;
+  String dateForm;
+  String timeForm;
+  // bool _validate = false;
   final _text = TextEditingController();
   bool incomeDialog;
 
@@ -38,6 +39,8 @@ class _SixJarsRouteState extends State<SixJarsRoute>
   // PageController pageController = PageController(initialPage: 0);
   // int _currentPage = 0;
   TabController jarController;
+  TimeOfDay _time;
+  DateTime _date;
   int _currentJar = 0;
   List<int> _currentAmount = [0, 0, 0, 0, 0, 0];
   // var stmType_index = 0;
@@ -74,10 +77,64 @@ class _SixJarsRouteState extends State<SixJarsRoute>
   //   degOneTranslationAnimation =
   //       Tween(begin: 0.0, end: 1.0).animate(animationController);
   // }
+  _pickDate() async {
+    DateTime date = await showDatePicker(
+        context: context,
+        initialDate: DateTime.now(),
+        firstDate: DateTime(2000),
+        lastDate: DateTime(2222),
+        builder: (BuildContext context, Widget child) {
+          return StatefulBuilder(
+            builder: (context, setState) {
+              return Theme(
+                data: ThemeData(),
+                child: child,
+              );
+            },
+          );
+        });
+    if (date != null)
+      setState(() {
+        _date = date;
+        dateForm = DateFormat.yMMMd().format(_date);
+      });
+  }
+
+  _pickTime() async {
+    TimeOfDay time = await showTimePicker(
+        initialTime: _time,
+        context: context,
+        builder: (BuildContext context, Widget child) {
+          return StatefulBuilder(
+            builder: (context, setState) {
+              return Theme(
+                data: ThemeData(),
+                child: child,
+              );
+            },
+          );
+        });
+    if (time != null)
+      setState(() {
+        _time = time;
+        timeForm = _timeFormatter(_time);
+      });
+  }
+
+  String _timeFormatter(_time) {
+    return int.parse(_time.hour.toString()) < 10
+        ? int.parse(_time.minute.toString()) < 10
+            ? "0" + _time.hour.toString() + ":" + "0" + _time.minute.toString()
+            : "0" + _time.hour.toString() + ":" + _time.minute.toString()
+        : int.parse(_time.minute.toString()) < 10
+            ? _time.hour.toString() + ":" + "0" + _time.minute.toString()
+            : _time.hour.toString() + ":" + _time.minute.toString();
+  }
 
   @override
   void initState() {
     super.initState();
+    _time = TimeOfDay.now();
     animationController =
         AnimationController(vsync: this, duration: Duration(milliseconds: 100));
     degOneTranslationAnimation =
@@ -147,10 +204,19 @@ class _SixJarsRouteState extends State<SixJarsRoute>
         DocumentReference documentReference =
             FirebaseFirestore.instance.collection("Ledger").doc(jarName[i]);
 
-        documentReference.collection("statementList").doc().set({
+        documentReference.collection("statementDate").doc(dateForm).set({
+          "date": dateForm,
+        });
+
+        documentReference
+            .collection("statementDate")
+            .doc(dateForm)
+            .collection("statementList")
+            .doc()
+            .set({
           "ledgerDetails": details,
-          "ledgerDate": date,
-          "ledgerTime": time,
+          "ledgerDate": dateForm,
+          "ledgerTime": timeForm,
           "ledgerType": stmType,
           "ledgerAmount": (int.parse(amount) * int.parse(percentage[i]) / 100)
               .round()
@@ -165,12 +231,17 @@ class _SixJarsRouteState extends State<SixJarsRoute>
 
       Map<String, String> statement = {
         "ledgerDetails": details,
-        "ledgerDate": date,
-        "ledgerTime": time,
+        "ledgerDate": dateForm,
+        "ledgerTime": timeForm,
         "ledgerType": stmType,
         "ledgerAmount": amount,
       };
-      documentReference.collection("statementList").doc().set(statement);
+      documentReference
+          .collection("statementDate")
+          .doc(dateForm)
+          .collection("statementList")
+          .doc()
+          .set(statement);
     }
   }
 
@@ -291,7 +362,8 @@ class _SixJarsRouteState extends State<SixJarsRoute>
                                 stream: FirebaseFirestore.instance
                                     .collection("Ledger")
                                     .doc(jarName[_currentJar])
-                                    .collection("statementList")
+                                    .collection("statementDate")
+                                    .orderBy('date', descending: true)
                                     .snapshots(),
                                 builder: (context, snapshots) {
                                   if (snapshots.data == null) {
@@ -310,50 +382,114 @@ class _SixJarsRouteState extends State<SixJarsRoute>
                                             DocumentSnapshot documentSnapshot =
                                                 snapshots.data.documents[index];
                                             return Container(
-                                              margin:
-                                                  EdgeInsets.only(bottom: 5),
-                                              child: Card(
-                                                color: documentSnapshot[
-                                                            "ledgerType"] ==
-                                                        "Income"
-                                                    ? Color(0xffADE498)
-                                                    : Color(0xffFA7F72),
-                                                // elevation: 4,
-                                                margin: EdgeInsets.only(
-                                                  right: 10,
-                                                  left: 10,
-                                                ),
-                                                shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            8)),
-                                                child: ListTile(
-                                                  dense: true,
-                                                  title: Container(
-                                                    child: Text(documentSnapshot[
-                                                                "ledgerDetails"] ==
-                                                            ""
-                                                        ? documentSnapshot[
-                                                            "ledgerType"]
-                                                        : documentSnapshot[
-                                                            "ledgerDetails"]),
+                                                margin:
+                                                    EdgeInsets.only(bottom: 5),
+                                                child: Card(
+                                                  color: Color(0xffF6F4E6),
+                                                  child: Column(
+                                                    children: [
+                                                      Text(
+                                                        documentSnapshot[
+                                                            "date"],
+                                                        style: TextStyle(
+                                                            fontSize: 12,
+                                                            color: Colors.grey),
+                                                      ),
+                                                      StreamBuilder(
+                                                        stream: FirebaseFirestore
+                                                            .instance
+                                                            .collection(
+                                                                "Ledger")
+                                                            .doc(jarName[
+                                                                _currentJar])
+                                                            .collection(
+                                                                "statementDate")
+                                                            .doc(
+                                                                documentSnapshot[
+                                                                    "date"])
+                                                            .collection(
+                                                                "statementList")
+                                                            .snapshots(),
+                                                        builder: (context,
+                                                            snapshots) {
+                                                          if (snapshots.data ==
+                                                              null) {
+                                                            return CircularProgressIndicator();
+                                                          } else {
+                                                            return ListView
+                                                                .builder(
+                                                              physics:
+                                                                  NeverScrollableScrollPhysics(),
+                                                              shrinkWrap: true,
+                                                              itemCount:
+                                                                  snapshots
+                                                                      .data
+                                                                      .documents
+                                                                      .length,
+                                                              itemBuilder:
+                                                                  (context,
+                                                                      index) {
+                                                                DocumentSnapshot
+                                                                    documentSnapshot =
+                                                                    snapshots
+                                                                            .data
+                                                                            .documents[
+                                                                        index];
+                                                                return Card(
+                                                                  color: documentSnapshot[
+                                                                              "ledgerType"] ==
+                                                                          "Income"
+                                                                      ? Color(
+                                                                          0xffADE498)
+                                                                      : Color(
+                                                                          0xffFA7F72),
+                                                                  // elevation: 4,
+                                                                  margin:
+                                                                      EdgeInsets
+                                                                          .only(
+                                                                            top: 2,
+                                                                            bottom: 2,
+                                                                    right: 10,
+                                                                    left: 10,
+                                                                  ),
+                                                                  shape: RoundedRectangleBorder(
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                              8)),
+                                                                  child: Center(
+                                                                    heightFactor:
+                                                                        0.5,
+                                                                    child:
+                                                                        ListTile(
+                                                                      dense:
+                                                                          true,
+                                                                      title:
+                                                                          Container(
+                                                                        child: Text(documentSnapshot["ledgerDetails"] ==
+                                                                                ""
+                                                                            ? documentSnapshot["ledgerType"]
+                                                                            : documentSnapshot["ledgerDetails"]),
+                                                                      ),
+                                                                      trailing:
+                                                                          Container(
+                                                                        child: Text(documentSnapshot["ledgerType"] ==
+                                                                                "Income"
+                                                                            ? "+" +
+                                                                                documentSnapshot["ledgerAmount"] +
+                                                                                ".00"
+                                                                            : "-" + documentSnapshot["ledgerAmount"] + ".00"),
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                );
+                                                              },
+                                                            );
+                                                          }
+                                                        },
+                                                      ),
+                                                    ],
                                                   ),
-                                                  trailing: Container(
-                                                    child: Text(documentSnapshot[
-                                                                "ledgerType"] ==
-                                                            "Income"
-                                                        ? "+" +
-                                                            documentSnapshot[
-                                                                "ledgerAmount"] +
-                                                            ".00"
-                                                        : "-" +
-                                                            documentSnapshot[
-                                                                "ledgerAmount"] +
-                                                            ".00"),
-                                                  ),
-                                                ),
-                                              ),
-                                            );
+                                                ));
                                           }),
                                     );
                                   }
@@ -417,6 +553,8 @@ class _SixJarsRouteState extends State<SixJarsRoute>
                         onClick: () {
                           details = "";
                           incomeDialog = true;
+                          _time = TimeOfDay.now();
+                          // Text("Current Time: ${_currentTime.format(context)}")
                           _showDialog(incomeDialog);
                         },
                       ),
@@ -444,6 +582,8 @@ class _SixJarsRouteState extends State<SixJarsRoute>
   }
 
   _showDialog(incomeDialog) {
+    timeForm = _timeFormatter(_time);
+    dateForm = DateFormat.yMMMMd().format(DateTime.now());
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -488,35 +628,35 @@ class _SixJarsRouteState extends State<SixJarsRoute>
                             //     _validate ? "Please enter some details" : null,
                           ),
                           onChanged: (String value) {
+                            if (value == null) setState(() {});
                             details = value;
                           },
                         ),
                       ),
                       Container(
-                        margin: EdgeInsets.symmetric(vertical: 5),
-                        child: TextField(
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(
-                                borderSide: BorderSide(color: Colors.teal)),
-                            hintText: 'amount statement',
-                            labelText: 'Date',
-                          ),
-                          onChanged: (String value) {
-                            date = value;
+                        child: ListTile(
+                          title: _date == null
+                              ? Text("Date: " +
+                                  DateFormat.yMMMMd().format(DateTime.now()))
+                              : Text(
+                                  "Date: " + DateFormat.yMMMd().format(_date)),
+                          onTap: () {
+                            _pickDate().then((value) {
+                              if (value == null) setState(() {});
+                            });
                           },
                         ),
                       ),
                       Container(
                         margin: EdgeInsets.symmetric(vertical: 5),
-                        child: TextField(
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(
-                                borderSide: BorderSide(color: Colors.teal)),
-                            hintText: 'amount statement',
-                            labelText: 'Time',
-                          ),
-                          onChanged: (String value) {
-                            time = value;
+                        child: ListTile(
+                          title: timeForm == null ?? timeForm == ""
+                              ? Text("Time: " + _timeFormatter(_time))
+                              : Text("Time: " + timeForm),
+                          onTap: () {
+                            _pickTime().then((value) {
+                              if (value == null) setState(() {});
+                            });
                           },
                         ),
                       ),

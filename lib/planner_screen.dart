@@ -19,9 +19,11 @@ class PlannerPage extends StatefulWidget {
 }
 
 class _PlannerState extends State<PlannerPage> with TickerProviderStateMixin {
+  TimeOfDay _time;
   CalendarController _controller;
   TabController dateController;
   bool addToTodo = false;
+  bool isTimeStart = false;
   String input = "";
   String activity = "";
   int activity_index;
@@ -62,11 +64,45 @@ class _PlannerState extends State<PlannerPage> with TickerProviderStateMixin {
     documentReference.collection("plannerList").doc(input).set(planners);
   }
 
+  _pickTime(isTimeStart) async {
+    TimeOfDay time = await showTimePicker(
+        initialTime: _time,
+        context: context,
+        builder: (BuildContext context, Widget child) {
+          return StatefulBuilder(
+            builder: (context, setState) {
+              return Theme(
+                data: ThemeData(),
+                child: child,
+              );
+            },
+          );
+        });
+    if (time != null)
+      setState(() {
+        _time = time;
+        isTimeStart
+            ? _timeStart = _timeFormatter(_time)
+            : _timeEnd = _timeFormatter(_time);
+      });
+  }
+
+  String _timeFormatter(_time) {
+    return int.parse(_time.hour.toString()) < 10
+        ? int.parse(_time.minute.toString()) < 10
+            ? "0" + _time.hour.toString() + ":" + "0" + _time.minute.toString()
+            : "0" + _time.hour.toString() + ":" + _time.minute.toString()
+        : int.parse(_time.minute.toString()) < 10
+            ? _time.hour.toString() + ":" + "0" + _time.minute.toString()
+            : _time.hour.toString() + ":" + _time.minute.toString();
+  }
+
   @override
   void initState() {
     activity = activityList.first;
 
     super.initState();
+    _time = TimeOfDay.now();
     dateController = TabController(vsync: this, length: 7, initialIndex: 0);
     _controller = CalendarController();
   }
@@ -85,6 +121,10 @@ class _PlannerState extends State<PlannerPage> with TickerProviderStateMixin {
       floatingActionButton: FloatingActionButton(
         backgroundColor: Color(0xffFDDB3A),
         onPressed: () {
+          // setState(() {
+          _timeStart = null;
+          _timeEnd = null;
+          // });
           showDialog(
               context: context,
               builder: (BuildContext context) {
@@ -141,30 +181,27 @@ class _PlannerState extends State<PlannerPage> with TickerProviderStateMixin {
                               ),
                             ),
                           ),
-                          TextField(
-                            decoration: InputDecoration(
-                              border: OutlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.teal)),
-                              hintText: 'Start Time',
-                              labelText: 'Start Time',
-                            ),
-                            onChanged: (String value) {
-                              _timeStart = value;
+                          ListTile(
+                            title: _timeStart == null ?? _timeStart == ""
+                                ? Text("Select start time.")
+                                : Text(_timeStart),
+                            onTap: () {
+                              isTimeStart = true;
+                              _pickTime(isTimeStart).then((value) {
+                                if (value == null) setState(() {});
+                              });
                             },
                           ),
-                          Container(
-                            padding: EdgeInsets.only(top: 10),
-                            child: TextField(
-                              decoration: InputDecoration(
-                                border: OutlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.teal)),
-                                hintText: 'End Time',
-                                labelText: 'End Time',
-                              ),
-                              onChanged: (String value) {
-                                _timeEnd = value;
-                              },
-                            ),
+                          ListTile(
+                            title: _timeEnd == null ?? _timeEnd == ""
+                                ? Text("Select end time.")
+                                : Text(_timeEnd),
+                            onTap: () {
+                              isTimeStart = false;
+                              _pickTime(isTimeStart).then((value) {
+                                if (value == null) setState(() {});
+                              });
+                            },
                           ),
                           ListTile(
                             // dense: true,
@@ -305,6 +342,7 @@ class _PlannerState extends State<PlannerPage> with TickerProviderStateMixin {
                       .collection("Planner")
                       .doc(_controller.selectedDay.toString())
                       .collection("plannerList")
+                      .orderBy("plannerTimeStart")
                       .snapshots(),
                   builder: (context, snapshots) {
                     if (snapshots.data == null) {
@@ -327,8 +365,15 @@ class _PlannerState extends State<PlannerPage> with TickerProviderStateMixin {
                                     left: 10, right: 10, top: 4),
                                 elevation: 4,
                                 child: ListTile(
-                                    title: Text(
-                                        documentSnapshot["plannerDetails"])));
+                                    title: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(documentSnapshot["plannerTimeStart"]),
+                                    Text(documentSnapshot["plannerDetails"]),
+                                    Text(documentSnapshot["plannerTimeEnd"]),
+                                  ],
+                                )));
                           });
                     }
                   }),
