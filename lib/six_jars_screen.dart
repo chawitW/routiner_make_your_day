@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 
+
 // import 'package:intl/date_symbol_data_local.dart';
 // initializeDateFormatting('fr_FR', null) async .then((_) => runMyCode());
 
@@ -229,6 +230,10 @@ class _SixJarsRouteState extends State<SixJarsRoute>
           .collection("Ledger")
           .doc(jarName[_currentJar]);
 
+      documentReference.collection("statementDate").doc(dateForm).set({
+        "date": dateForm,
+      });
+
       Map<String, String> statement = {
         "ledgerDetails": details,
         "ledgerDate": dateForm,
@@ -382,114 +387,109 @@ class _SixJarsRouteState extends State<SixJarsRoute>
                                             DocumentSnapshot documentSnapshot =
                                                 snapshots.data.documents[index];
                                             return Container(
-                                                margin:
-                                                    EdgeInsets.only(bottom: 5),
                                                 child: Card(
-                                                  color: Color(0xffF6F4E6),
-                                                  child: Column(
-                                                    children: [
-                                                      Text(
-                                                        documentSnapshot[
-                                                            "date"],
-                                                        style: TextStyle(
-                                                            fontSize: 12,
-                                                            color: Colors.grey),
-                                                      ),
-                                                      StreamBuilder(
-                                                        stream: FirebaseFirestore
-                                                            .instance
-                                                            .collection(
-                                                                "Ledger")
-                                                            .doc(jarName[
-                                                                _currentJar])
-                                                            .collection(
-                                                                "statementDate")
-                                                            .doc(
-                                                                documentSnapshot[
-                                                                    "date"])
-                                                            .collection(
-                                                                "statementList")
-                                                            .snapshots(),
-                                                        builder: (context,
-                                                            snapshots) {
-                                                          if (snapshots.data ==
-                                                              null) {
-                                                            return CircularProgressIndicator();
-                                                          } else {
-                                                            return ListView
-                                                                .builder(
-                                                              physics:
-                                                                  NeverScrollableScrollPhysics(),
-                                                              shrinkWrap: true,
-                                                              itemCount:
-                                                                  snapshots
-                                                                      .data
-                                                                      .documents
-                                                                      .length,
-                                                              itemBuilder:
-                                                                  (context,
-                                                                      index) {
-                                                                DocumentSnapshot
-                                                                    documentSnapshot =
-                                                                    snapshots
-                                                                            .data
-                                                                            .documents[
-                                                                        index];
-                                                                return Card(
-                                                                  color: documentSnapshot[
-                                                                              "ledgerType"] ==
-                                                                          "Income"
-                                                                      ? Color(
-                                                                          0xffADE498)
-                                                                      : Color(
-                                                                          0xffFA7F72),
-                                                                  // elevation: 4,
-                                                                  margin:
-                                                                      EdgeInsets
-                                                                          .only(
-                                                                            top: 2,
-                                                                            bottom: 2,
-                                                                    right: 10,
-                                                                    left: 10,
-                                                                  ),
-                                                                  shape: RoundedRectangleBorder(
-                                                                      borderRadius:
-                                                                          BorderRadius.circular(
-                                                                              8)),
-                                                                  child: Center(
-                                                                    heightFactor:
-                                                                        0.5,
-                                                                    child:
-                                                                        ListTile(
-                                                                      dense:
-                                                                          true,
-                                                                      title:
-                                                                          Container(
-                                                                        child: Text(documentSnapshot["ledgerDetails"] ==
-                                                                                ""
-                                                                            ? documentSnapshot["ledgerType"]
-                                                                            : documentSnapshot["ledgerDetails"]),
-                                                                      ),
-                                                                      trailing:
-                                                                          Container(
-                                                                        child: Text(documentSnapshot["ledgerType"] ==
-                                                                                "Income"
-                                                                            ? "+" +
-                                                                                documentSnapshot["ledgerAmount"] +
-                                                                                ".00"
-                                                                            : "-" + documentSnapshot["ledgerAmount"] + ".00"),
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                );
-                                                              },
-                                                            );
-                                                          }
-                                                        },
-                                                      ),
-                                                    ],
+                                              color: Color(0xffF6F4E6),
+                                              child: Column(
+                                                children: [
+                                                  Text(
+                                                    documentSnapshot["date"],
+                                                    style: TextStyle(
+                                                        fontSize: 12,
+                                                        color: Colors.grey),
                                                   ),
-                                                ));
+                                                  StreamBuilder(
+                                                    stream: FirebaseFirestore
+                                                        .instance
+                                                        .collection("Ledger")
+                                                        .doc(jarName[
+                                                            _currentJar])
+                                                        .collection(
+                                                            "statementDate")
+                                                        .doc(documentSnapshot[
+                                                            "date"])
+                                                        .collection(
+                                                            "statementList")
+                                                        .orderBy("ledgerTime",
+                                                            descending: true)
+                                                        .snapshots(),
+                                                    builder:
+                                                        (context, snapshots) {
+                                                      if (snapshots.data ==
+                                                          null) {
+                                                        return CircularProgressIndicator();
+                                                      } else {
+                                                        return ListView.builder(
+                                                          physics:
+                                                              NeverScrollableScrollPhysics(),
+                                                          shrinkWrap: true,
+                                                          itemCount: snapshots
+                                                              .data
+                                                              .documents
+                                                              .length,
+                                                          itemBuilder:
+                                                              (context, index) {
+                                                            DocumentSnapshot
+                                                                documentSnapshot =
+                                                                snapshots.data
+                                                                        .documents[
+                                                                    index];
+                                                            return Card(
+                                                              color: documentSnapshot[
+                                                                          "ledgerType"] ==
+                                                                      "Income"
+                                                                  ? Color(
+                                                                      0xffADE498)
+                                                                  : Color(
+                                                                      0xffFA7F72),
+                                                              // elevation: 4,
+                                                              margin: EdgeInsets
+                                                                  .only(
+                                                                top: 2,
+                                                                bottom: 2,
+                                                                right: 10,
+                                                                left: 10,
+                                                              ),
+                                                              shape: RoundedRectangleBorder(
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              8)),
+                                                              child: Center(
+                                                                heightFactor:
+                                                                    0.5,
+                                                                child: ListTile(
+                                                                  dense: true,
+                                                                  title:
+                                                                      Container(
+                                                                    child: Text(documentSnapshot[
+                                                                            "ledgerTime"] +
+                                                                        "  " +
+                                                                        documentSnapshot[
+                                                                            "ledgerDetails"]),
+                                                                  ),
+                                                                  trailing:
+                                                                      Container(
+                                                                    child: Text(documentSnapshot["ledgerType"] ==
+                                                                            "Income"
+                                                                        ? "+" +
+                                                                            documentSnapshot[
+                                                                                "ledgerAmount"] +
+                                                                            ".00"
+                                                                        : "-" +
+                                                                            documentSnapshot["ledgerAmount"] +
+                                                                            ".00"),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            );
+                                                          },
+                                                        );
+                                                      }
+                                                    },
+                                                  ),
+                                                ],
+                                              ),
+                                            ));
                                           }),
                                     );
                                   }
@@ -533,6 +533,8 @@ class _SixJarsRouteState extends State<SixJarsRoute>
                             setState(() {
                               incomeDialog = false;
                               details = "";
+                              _date = DateTime.now();
+                              _time = TimeOfDay.now();
                               _showDialog(incomeDialog);
                             });
                           },
@@ -553,6 +555,7 @@ class _SixJarsRouteState extends State<SixJarsRoute>
                         onClick: () {
                           details = "";
                           incomeDialog = true;
+                          _date = DateTime.now();
                           _time = TimeOfDay.now();
                           // Text("Current Time: ${_currentTime.format(context)}")
                           _showDialog(incomeDialog);

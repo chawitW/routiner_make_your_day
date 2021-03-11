@@ -447,6 +447,7 @@ class _ToDoRouteState extends State<ToDoRoute> with TickerProviderStateMixin {
                                                                         .circular(
                                                                             8)),
                                                         child: ListTile(
+                                                          dense: true,
                                                           title: Text(
                                                               documentSnapshot[
                                                                   "todoTitle"]),

@@ -44,132 +44,134 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        iconTheme: IconThemeData(color: Color(0xffF6F4E6)),
-        centerTitle: true,
-        backgroundColor: Color(0xFF41444B),
-        title: Text(
-          'Routiner',
-          style: TextStyle(
-            color: Color(0xffFDDB3A),
-            fontSize: 20.0,
-            fontFamily: 'BPeople',
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          iconTheme: IconThemeData(color: Color(0xffF6F4E6)),
+          centerTitle: true,
+          backgroundColor: Color(0xFF41444B),
+          title: Text(
+            'Routiner',
+            style: TextStyle(
+              color: Color(0xffFDDB3A),
+              fontSize: 20.0,
+              fontFamily: 'BPeople',
+            ),
           ),
         ),
-      ),
-      // body: tabs[_currentPage],
-      body: PageView(
-        controller: pageController,
-        onPageChanged: (page) {
-          setState(() {
-            _currentPage = page;
-          });
-        },
-        children: [
-          ToDoRoute(),
-          SixJarsRoute(),
-          PlannerRoute(),
-        ],
-      ),
-      drawer: Theme(
-        data: Theme.of(context).copyWith(canvasColor: Color(0xffF6F4E6)),
-        child: Drawer(
-          child: ListView(
-            padding: EdgeInsets.zero,
-            children: <Widget>[
-              ListTile(
-                title: Row(
-                  children: [
-                    Icon(Icons.insert_chart),
-                    Text(' Summary'),
-                  ],
+        // body: tabs[_currentPage],
+        body: PageView(
+          controller: pageController,
+          onPageChanged: (page) {
+            setState(() {
+              _currentPage = page;
+            });
+          },
+          children: [
+            ToDoRoute(),
+            SixJarsRoute(),
+            PlannerRoute(),
+          ],
+        ),
+        drawer: Theme(
+          data: Theme.of(context).copyWith(canvasColor: Color(0xffF6F4E6)),
+          child: Drawer(
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: <Widget>[
+                ListTile(
+                  title: Row(
+                    children: [
+                      Icon(Icons.insert_chart),
+                      Text(' Summary'),
+                    ],
+                  ),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => AnalyticsPage()));
+                  },
                 ),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => AnalyticsPage()));
-                },
-              ),
-              ListTile(
-                title: Row(
-                  children: [
-                    Icon(Icons.book),
-                    Text(' Theories'),
-                  ],
+                ListTile(
+                  title: Row(
+                    children: [
+                      Icon(Icons.book),
+                      Text(' Theories'),
+                    ],
+                  ),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => TheoryPage()));
+                  },
                 ),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => TheoryPage()));
-                },
-              ),
-              ListTile(
-                title: Row(
-                  children: [
-                    Icon(Icons.settings),
-                    Text(' Setting'),
-                  ],
+                ListTile(
+                  title: Row(
+                    children: [
+                      Icon(Icons.settings),
+                      Text(' Setting'),
+                    ],
+                  ),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => SettingPage()));
+                  },
                 ),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => SettingPage()));
-                },
-              ),
-            ],
+              ],
+            ),
           ),
         ),
-      ),
 
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Color(0xFF41444B),
-        // fixedColor: Color(0xffFDDB3A),
-        items: [
-          BottomNavigationBarItem(
-              // icon: Image.asset('asset/icon/ToDo.png'),
-              icon: Icon(Icons.check_box,
-                  color: _currentPage == 0
-                      ? Color(0xffFDDB3A)
-                      : Color(0xffF6F4E6)),
-              title: Text("To do",
-                  style: TextStyle(
-                      color: _currentPage == 0
-                          ? Color(0xffFDDB3A)
-                          : Color(0xffF6F4E6)))),
-          BottomNavigationBarItem(
-              // icon: Image.asset('asset/icon/Ledger.png'),
-              icon: Icon(Icons.local_atm,
-                  // icon: Icon(Icons.attach_money_rounded,
-                  color: _currentPage == 1
-                      ? Color(0xffFDDB3A)
-                      : Color(0xffF6F4E6)),
-              title: Text("Ledger",
-                  style: TextStyle(
-                      color: _currentPage == 1
-                          ? Color(0xffFDDB3A)
-                          : Color(0xffF6F4E6)))),
-          BottomNavigationBarItem(
-            // icon: Image.asset('asset/icon/Planner.png'),
-            icon: Icon(Icons.event,
-                color:
-                    _currentPage == 2 ? Color(0xffFDDB3A) : Color(0xffF6F4E6)),
-            title: Text("Planner",
-                style: TextStyle(
-                    color: _currentPage == 2
+        bottomNavigationBar: BottomNavigationBar(
+          backgroundColor: Color(0xFF41444B),
+          // fixedColor: Color(0xffFDDB3A),
+          items: [
+            BottomNavigationBarItem(
+                // icon: Image.asset('asset/icon/ToDo.png'),
+                icon: Icon(Icons.check_box,
+                    color: _currentPage == 0
                         ? Color(0xffFDDB3A)
-                        : Color(0xffF6F4E6))),
-          ),
-        ],
-        onTap: (index) {
-          _currentPage = index;
+                        : Color(0xffF6F4E6)),
+                title: Text("To do",
+                    style: TextStyle(
+                        color: _currentPage == 0
+                            ? Color(0xffFDDB3A)
+                            : Color(0xffF6F4E6)))),
+            BottomNavigationBarItem(
+                // icon: Image.asset('asset/icon/Ledger.png'),
+                icon: Icon(Icons.local_atm,
+                    // icon: Icon(Icons.attach_money_rounded,
+                    color: _currentPage == 1
+                        ? Color(0xffFDDB3A)
+                        : Color(0xffF6F4E6)),
+                title: Text("Ledger",
+                    style: TextStyle(
+                        color: _currentPage == 1
+                            ? Color(0xffFDDB3A)
+                            : Color(0xffF6F4E6)))),
+            BottomNavigationBarItem(
+              // icon: Image.asset('asset/icon/Planner.png'),
+              icon: Icon(Icons.event,
+                  color:
+                      _currentPage == 2 ? Color(0xffFDDB3A) : Color(0xffF6F4E6)),
+              title: Text("Planner",
+                  style: TextStyle(
+                      color: _currentPage == 2
+                          ? Color(0xffFDDB3A)
+                          : Color(0xffF6F4E6))),
+            ),
+          ],
+          onTap: (index) {
+            _currentPage = index;
 
-          // pageController.animateToPage(index, duration: Duration(milliseconds:  200),
-          // curve: Curves.linear); //decoration
+            // pageController.animateToPage(index, duration: Duration(milliseconds:  200),
+            // curve: Curves.linear); //decoration
 
-          pageController.jumpToPage(index);
-          setState(() {});
-        },
+            pageController.jumpToPage(index);
+            setState(() {});
+          },
+        ),
       ),
     );
   }

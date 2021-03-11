@@ -87,6 +87,18 @@ class _PlannerState extends State<PlannerPage> with TickerProviderStateMixin {
       });
   }
 
+  double _timeCalculate(_startTime, _endTime) {
+    int startTime, endTime;
+    double diffTime;
+    var arrStart = _startTime.split(":");
+    var arrEnd = _endTime.split(":");
+
+    startTime = int.parse(arrStart[0]) * 60 + int.parse(arrStart[1]);
+    endTime = int.parse(arrEnd[0]) * 60 + int.parse(arrEnd[1]);
+    diffTime = endTime - startTime >= 60 ? (endTime - startTime) / 60 : 1;
+    return diffTime;
+  }
+
   String _timeFormatter(_time) {
     return int.parse(_time.hour.toString()) < 10
         ? int.parse(_time.minute.toString()) < 10
@@ -356,6 +368,9 @@ class _PlannerState extends State<PlannerPage> with TickerProviderStateMixin {
                           itemBuilder: (context, index) {
                             DocumentSnapshot documentSnapshot =
                                 snapshots.data.documents[index];
+                            double _diffTime = _timeCalculate(
+                                documentSnapshot["plannerTimeStart"],
+                                documentSnapshot["plannerTimeEnd"]);
                             return Card(
                                 color: activityColors[int.parse(
                                         documentSnapshot[
@@ -364,16 +379,20 @@ class _PlannerState extends State<PlannerPage> with TickerProviderStateMixin {
                                 margin: EdgeInsets.only(
                                     left: 10, right: 10, top: 4),
                                 elevation: 4,
-                                child: ListTile(
-                                    title: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(documentSnapshot["plannerTimeStart"]),
-                                    Text(documentSnapshot["plannerDetails"]),
-                                    Text(documentSnapshot["plannerTimeEnd"]),
-                                  ],
-                                )));
+                                child: Center(
+                                  heightFactor: 0.6 * _diffTime,
+                                  child: ListTile(
+                                      title: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                          documentSnapshot["plannerTimeStart"]),
+                                      Text(documentSnapshot["plannerDetails"]),
+                                      Text(documentSnapshot["plannerTimeEnd"]),
+                                    ],
+                                  )),
+                                ));
                           });
                     }
                   }),
