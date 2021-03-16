@@ -1,6 +1,7 @@
 // import 'dart:html';
 
 import 'package:flutter/material.dart';
+// import 'package:project_1/login.dart';
 import 'package:project_1/planner_screen.dart';
 // import 'package:project_1/presentation/my_flutter_app_icons.dart';
 import 'package:project_1/six_jars_screen.dart';
@@ -14,6 +15,8 @@ import 'package:project_1/splash_screen.dart';
 
 // import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:project_1/widget/logged_in_widget.dart';
 
 // void main() => runApp(MaterialApp(
 //       home: SplashScreen(),
@@ -35,6 +38,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   PageController pageController = PageController(initialPage: 1);
   int _currentPage = 1;
+  final user = FirebaseAuth.instance.currentUser;
 
   final tabs = [
     ToDoRoute(),
@@ -47,6 +51,20 @@ class _HomePageState extends State<HomePage> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
+          actions: [
+            IconButton(
+              icon: CircleAvatar(
+                maxRadius: 25,
+                backgroundImage: NetworkImage(user.photoURL),
+              ),
+              onPressed: () {
+
+                //maybe change into _showDialog in future
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => LoggedInWidget()));
+              },
+            ),
+          ],
           iconTheme: IconThemeData(color: Color(0xffF6F4E6)),
           centerTitle: true,
           backgroundColor: Color(0xFF41444B),
@@ -88,8 +106,10 @@ class _HomePageState extends State<HomePage> {
                   ),
                   onTap: () {
                     Navigator.of(context).pop();
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => AnalyticsPage()));
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => AnalyticsPage()));
                   },
                 ),
                 ListTile(
@@ -153,8 +173,9 @@ class _HomePageState extends State<HomePage> {
             BottomNavigationBarItem(
               // icon: Image.asset('asset/icon/Planner.png'),
               icon: Icon(Icons.event,
-                  color:
-                      _currentPage == 2 ? Color(0xffFDDB3A) : Color(0xffF6F4E6)),
+                  color: _currentPage == 2
+                      ? Color(0xffFDDB3A)
+                      : Color(0xffF6F4E6)),
               title: Text("Planner",
                   style: TextStyle(
                       color: _currentPage == 2

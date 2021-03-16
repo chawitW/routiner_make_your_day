@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:project_1/login.dart';
 import 'package:project_1/main.dart';
 
 void main() => runApp(MaterialApp(
@@ -24,7 +25,7 @@ class _SplashScreenState extends State<SplashScreen> {
         // () => MyNavigator.goToHome(context));
 
         () => Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => HomePage())));
+            context, MaterialPageRoute(builder: (context) => LoginPage())));
 
     // () => print("\n\n\nSplahScreen!!!!\n\n\n")); //after SplashSceen
   }

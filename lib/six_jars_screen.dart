@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
-
+import 'package:firebase_auth/firebase_auth.dart';
 
 // import 'package:intl/date_symbol_data_local.dart';
 // initializeDateFormatting('fr_FR', null) async .then((_) => runMyCode());
@@ -20,6 +20,7 @@ class _SixJarsRouteState extends State<SixJarsRoute>
   AnimationController animationController;
   Animation degOneTranslationAnimation;
   Animation rotationAnimation;
+  final user = FirebaseAuth.instance.currentUser;
 
   String details = "";
   String dateForm;
@@ -161,8 +162,11 @@ class _SixJarsRouteState extends State<SixJarsRoute>
 
   createSixJars() {
     for (int i = 0; i < jarName.length; i++) {
-      DocumentReference documentReference =
-          FirebaseFirestore.instance.collection("Ledger").doc(jarName[i]);
+      DocumentReference documentReference = FirebaseFirestore.instance
+          .collection(user.email)
+          .doc(user.email)
+          .collection("Ledger")
+          .doc(jarName[i]);
       Map<String, String> amount = {
         "jarAmount": "0",
         "jarNumber": i.toString(),
@@ -268,16 +272,16 @@ class _SixJarsRouteState extends State<SixJarsRoute>
                       mainAxisSize: MainAxisSize.min,
                       children: <Widget>[
                         /*create initial amount btn*/
-                        // Center(
-                        //   child: IconButton(
-                        //     icon: Text("create mock up"),
-                        //     onPressed: () {
-                        //       setState(() {
-                        //         createSixJars();
-                        //       });
-                        //     },
-                        //   ),
-                        // ),
+                        Center(
+                          child: IconButton(
+                            icon: Text("create mock up"),
+                            onPressed: () {
+                              setState(() {
+                                createSixJars();
+                              });
+                            },
+                          ),
+                        ),
                         Card(
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8)),
@@ -295,6 +299,8 @@ class _SixJarsRouteState extends State<SixJarsRoute>
                                   title: Center(
                                       child: StreamBuilder(
                                           stream: FirebaseFirestore.instance
+                                              .collection(user.email)
+                                              .doc(user.email)
                                               .collection("Ledger")
                                               .orderBy("jarNumber")
                                               .snapshots(),
@@ -365,6 +371,8 @@ class _SixJarsRouteState extends State<SixJarsRoute>
                               ),
                               StreamBuilder(
                                 stream: FirebaseFirestore.instance
+                                    .collection(user.email)
+                                    .doc(user.email)
                                     .collection("Ledger")
                                     .doc(jarName[_currentJar])
                                     .collection("statementDate")
@@ -400,6 +408,8 @@ class _SixJarsRouteState extends State<SixJarsRoute>
                                                   StreamBuilder(
                                                     stream: FirebaseFirestore
                                                         .instance
+                                                        .collection(user.email)
+                                                        .doc(user.email)
                                                         .collection("Ledger")
                                                         .doc(jarName[
                                                             _currentJar])

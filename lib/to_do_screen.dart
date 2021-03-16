@@ -398,73 +398,77 @@ class _ToDoRouteState extends State<ToDoRoute> with TickerProviderStateMixin {
                                                 DocumentSnapshot
                                                     documentSnapshot = snapshots
                                                         .data.documents[index];
-                                                return Dismissible(
-                                                    onDismissed: (direction) {
-                                                      _completedTask(
-                                                          documentSnapshot);
-                                                      deleteTodos(
-                                                          documentSnapshot[
-                                                              "todoTitle"],
-                                                          documentSnapshot[
-                                                              "todoGroupTag"]);
-                                                    },
-                                                    key: Key(documentSnapshot[
-                                                        "todoTitle"]),
-                                                    child: Container(
-                                                      child: Card(
-                                                        color: documentSnapshot[
+                                                return Container(
+                                                  child: Card(
+                                                    color: documentSnapshot[
+                                                                "todoPriority"] ==
+                                                            listMatrix[0]
+                                                        ? Color(0xffFA7F72)
+                                                        : documentSnapshot[
                                                                     "todoPriority"] ==
-                                                                listMatrix[0]
-                                                            ? Color(0xffFA7F72)
-                                                            : documentSnapshot[
-                                                                        "todoPriority"] ==
+                                                                listMatrix[
+                                                                    1]
+                                                            ? Color(
+                                                                0xff7FDBDA)
+                                                            : documentSnapshot["todoPriority"] ==
                                                                     listMatrix[
-                                                                        1]
+                                                                        2]
                                                                 ? Color(
-                                                                    0xff7FDBDA)
+                                                                    0xff8675A9)
                                                                 : documentSnapshot["todoPriority"] ==
                                                                         listMatrix[
-                                                                            2]
+                                                                            3]
                                                                     ? Color(
-                                                                        0xff8675A9)
-                                                                    : documentSnapshot["todoPriority"] ==
-                                                                            listMatrix[
-                                                                                3]
-                                                                        ? Color(
-                                                                            0xffADE498)
-                                                                        : Color(
-                                                                            0xffF6F4E6),
-                                                        elevation: 4,
-                                                        margin: EdgeInsets.only(
-                                                          right: 10,
-                                                          left: 10,
-                                                          top: 4,
-                                                        ),
-                                                        shape:
-                                                            RoundedRectangleBorder(
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            8)),
-                                                        child: ListTile(
-                                                          dense: true,
-                                                          title: Text(
-                                                              documentSnapshot[
-                                                                  "todoTitle"]),
-                                                          trailing: IconButton(
-                                                            icon: Icon(
-                                                                Icons.delete),
-                                                            onPressed: () {
-                                                              deleteTodos(
-                                                                  documentSnapshot[
-                                                                      "todoTitle"],
-                                                                  documentSnapshot[
-                                                                      "todoGroupTag"]);
-                                                            },
-                                                          ),
-                                                        ),
+                                                                        0xffADE498)
+                                                                    : Color(
+                                                                        0xffF6F4E6),
+                                                    elevation: 4,
+                                                    margin: EdgeInsets.only(
+                                                      right: 15,
+                                                      left: 15,
+                                                      top: 4,
+                                                    ),
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        8)),
+                                                    child: ListTile(
+                                                      dense: true,
+                                                      title: Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          IconButton(
+                                                              color: Colors
+                                                                  .white,
+                                                              icon: Icon(Icons
+                                                                  .circle),
+                                                              onPressed:
+                                                                  () {
+                                                                print(
+                                                                    "completed");
+                                                              }),
+                                                          Text(documentSnapshot[
+                                                              "todoTitle"]),
+                                                        ],
                                                       ),
-                                                    ));
+                                                      trailing: IconButton(
+                                                        icon: Icon(
+                                                            Icons.delete),
+                                                        onPressed: () {
+                                                          deleteTodos(
+                                                              documentSnapshot[
+                                                                  "todoTitle"],
+                                                              documentSnapshot[
+                                                                  "todoGroupTag"]);
+                                                        },
+                                                      ),
+                                                    ),
+                                                  ),
+                                                );
                                               }),
                                         );
                                       }
