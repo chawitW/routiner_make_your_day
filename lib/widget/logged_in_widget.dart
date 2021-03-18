@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:project_1/login.dart';
 import 'package:project_1/main.dart';
 import 'package:project_1/provider/google_sign_in.dart';
 import 'package:provider/provider.dart';
@@ -38,18 +39,27 @@ class LoggedInWidget extends StatelessWidget {
           SizedBox(height: 8),
           ElevatedButton(
             onPressed: () {
-              final provider =
-                  Provider.of<GoogleSignInProvider>(context, listen: false);
-              provider.logout();
+              // final provider =
+              //     Provider.of<GoogleSignInProvider>(context, listen: false);
+              // provider.logout();
+              FirebaseAuth.instance.signOut();
+              Navigator.pushReplacement(context,
+                  MaterialPageRoute(builder: (context) => LoginPage()));
+              
+  // final user = FirebaseAuth.instance.currentUser;
+  //print('$user');
+
+  
             },
             child: Text('Logout'),
           ),
           SizedBox(),
-          ElevatedButton(child: Text('Go to main page'),onPressed: () {
-            
-            Navigator.push(
-                context, MaterialPageRoute(builder: (context) => HomePage()));
-          })
+          ElevatedButton(
+              child: Text('Go to main page'),
+              onPressed: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => HomePage()));
+              })
         ],
       ),
     );

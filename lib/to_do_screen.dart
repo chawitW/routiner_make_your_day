@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 void main() {
   runApp(MaterialApp(home: ToDoRoute()));
@@ -17,6 +18,7 @@ class _ToDoRouteState extends State<ToDoRoute> with TickerProviderStateMixin {
   String priority;
   String groupTag = "";
   var priority_index;
+  final user = FirebaseAuth.instance.currentUser;
   List listMatrix = [
     "Urgent and important",
     "Not urgent and important",
@@ -39,6 +41,8 @@ class _ToDoRouteState extends State<ToDoRoute> with TickerProviderStateMixin {
 
   _completedTask(documentSnapshot) {
     DocumentReference documentReference = FirebaseFirestore.instance
+        .collection(user.email)
+        .doc(user.email)
         .collection("CompletedTodo")
         .doc(documentSnapshot["todoGroupTag"]);
 
@@ -60,8 +64,11 @@ class _ToDoRouteState extends State<ToDoRoute> with TickerProviderStateMixin {
   }
 
   createTodos() {
-    DocumentReference documentReference =
-        FirebaseFirestore.instance.collection("TodoList").doc(groupTag);
+    DocumentReference documentReference = FirebaseFirestore.instance
+        .collection(user.email)
+        .doc(user.email)
+        .collection("TodoList")
+        .doc(groupTag);
 
     Map<String, String> todos = {
       "todoTitle": input,
@@ -84,21 +91,64 @@ class _ToDoRouteState extends State<ToDoRoute> with TickerProviderStateMixin {
   }
 
   deleteTodos(item, tag) async {
-    DocumentReference documentReference =
-        FirebaseFirestore.instance.collection("TodoList").doc(tag);
+    DocumentReference documentReference = FirebaseFirestore.instance
+        .collection(user.email)
+        .doc(user.email)
+        .collection("TodoList")
+        .doc(tag);
 
-    // final int tagLength =
-    //     await documentReference.collection("groupList").snapshots().length;
-    // print(documentReference.collection("groupList").snapshots().length);
-    // if (tagLength <= 0)
-    //   documentReference.delete();
-    // else
-    //   print("tagLength is $tagLength");
     documentReference
         .collection("groupList")
         .doc(item)
         .delete()
         .whenComplete(() {});
+  }
+
+  _showConfirmDialog(documentSnapshot) {
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text("Remove " + documentSnapshot["groupTag"] + " ?"),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: IconButton(
+                        icon: Text("Dismiss"),
+                        onPressed: () {
+                          setState(() {});
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ),
+                    Expanded(
+                      child: IconButton(
+                        icon: Text(
+                          "Remove",
+                          style: TextStyle(color: Colors.redAccent),
+                        ),
+                        onPressed: () {
+                          FirebaseFirestore.instance
+                              .collection(user.email)
+                              .doc(user.email)
+                              .collection("TodoList")
+                              .doc(documentSnapshot["groupTag"])
+                              .delete();
+                          Navigator.of(context).pop();
+                          setState(() {});
+                        },
+                      ),
+                    ),
+                  ],
+                )
+              ],
+            ),
+          );
+        });
   }
 
   @override
@@ -259,6 +309,8 @@ class _ToDoRouteState extends State<ToDoRoute> with TickerProviderStateMixin {
           margin: EdgeInsets.only(left: 8.0, top: 4.0, right: 8.0, bottom: 4.0),
           child: StreamBuilder(
               stream: FirebaseFirestore.instance
+                  .collection(user.email)
+                  .doc(user.email)
                   .collection("TodoList")
                   // .orderBy("groupTag")
                   .snapshots(),
@@ -266,6 +318,7 @@ class _ToDoRouteState extends State<ToDoRoute> with TickerProviderStateMixin {
                 if (snapshots.data == null) {
                   return CircularProgressIndicator();
                 } else {
+                  // print(user.email);
                   return ReorderableListView(
                       onReorder: (oldIndex, newIndex) {
                         if (newIndex > oldIndex) {
@@ -281,124 +334,55 @@ class _ToDoRouteState extends State<ToDoRoute> with TickerProviderStateMixin {
                           // snapshots.data.document[newIndex].set(todos);
                         });
                       },
-                      children: List.generate(snapshots.data.documents.length,
-                          (index) {
+                      children:
+                          List.generate(snapshots.data.docs.length, (index) {
                         DocumentSnapshot documentSnapshot =
-                            snapshots.data.documents[index];
+                            snapshots.data.docs[index];
                         return Container(
                           key: ValueKey(index),
-                          child: Dismissible(
-                            direction: DismissDirection.startToEnd,
-                            onDismissed: (direction) {
-                              // if (snapshots.data.documents.length <= 0)
-                              //   return showDialog(
-                              //       context: context,
-                              //       builder: (BuildContext context) {
-
-                              //         Navigator.of(context).pop();
-                              //         return AlertDialog(
-                              //           content: Text(
-                              //               "Can not remove tag, task(s) still avaliable."),
-                              //         );
-
-                              //       });
-                              return showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return AlertDialog(
-                                      content: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Text("Remove " +
-                                              documentSnapshot["groupTag"] +
-                                              " ?"),
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Expanded(
-                                                child: IconButton(
-                                                  icon: Text("Dismiss"),
-                                                  onPressed: () {
-                                                    setState(() {});
-                                                    Navigator.of(context).pop();
+                          child: Card(
+                            color: Color(0xffF6F4E6),
+                            child: ExpansionTile(
+                              initiallyExpanded: true,
+                              title: Text(
+                                documentSnapshot["groupTag"],
+                                textAlign: TextAlign.left,
+                                style: TextStyle(fontSize: 20),
+                              ),
+                              children: [
+                                StreamBuilder(
+                                  stream: FirebaseFirestore.instance
+                                      .collection(user.email)
+                                      .doc(user.email)
+                                      .collection("TodoList")
+                                      .doc(documentSnapshot["groupTag"])
+                                      .collection("groupList")
+                                      .orderBy("todoPriority_index")
+                                      .snapshots(),
+                                  builder: (context, snapshots) {
+                                    if (snapshots.data == null) {
+                                      return CircularProgressIndicator();
+                                    } else {
+                                      return Container(
+                                        margin:
+                                            EdgeInsets.only(bottom: 10, top: 5),
+                                        child: ListView.builder(
+                                            physics:
+                                                const NeverScrollableScrollPhysics(),
+                                            shrinkWrap: true,
+                                            itemCount:
+                                                snapshots.data.docs.length,
+                                            itemBuilder: (context, index) {
+                                              DocumentSnapshot
+                                                  documentSnapshot =
+                                                  snapshots.data.docs[index];
+                                              return Container(
+                                                child: Dismissible(
+                                                  key: ValueKey(index),
+                                                  onDismissed: (directoin) {
+                                                    _completedTask(
+                                                        documentSnapshot);
                                                   },
-                                                ),
-                                              ),
-                                              Expanded(
-                                                child: IconButton(
-                                                  icon: Text(
-                                                    "Remove",
-                                                    style: TextStyle(
-                                                        color:
-                                                            Colors.redAccent),
-                                                  ),
-                                                  onPressed: () {
-                                                    // for (int i = 0;
-                                                    //     i <
-                                                    //         snapshots
-                                                    //             .data
-                                                    //             .documents
-                                                    //             .length;
-                                                    //     i++)
-                                                    //   deleteTodos(
-                                                    //       documentSnapshot[
-                                                    //           "todoTitle"],
-                                                    //       documentSnapshot[
-                                                    //           "todoGroupTag"]);
-                                                    FirebaseFirestore.instance
-                                                        .collection("TodoList")
-                                                        .doc(documentSnapshot[
-                                                            "groupTag"])
-                                                        .delete();
-                                                    Navigator.of(context).pop();
-                                                    setState(() {});
-                                                  },
-                                                ),
-                                              ),
-                                            ],
-                                          )
-                                        ],
-                                      ),
-                                    );
-                                  });
-                            },
-                            key: UniqueKey(),
-                            child: Card(
-                              color: Color(0xffF6F4E6),
-                              child: ExpansionTile(
-                                initiallyExpanded: true,
-                                title: Text(
-                                  documentSnapshot["groupTag"],
-                                  textAlign: TextAlign.left,
-                                  style: TextStyle(fontSize: 20),
-                                ),
-                                children: [
-                                  StreamBuilder(
-                                    stream: FirebaseFirestore.instance
-                                        .collection("TodoList")
-                                        .doc(documentSnapshot["groupTag"])
-                                        .collection("groupList")
-                                        .orderBy("todoPriority_index")
-                                        .snapshots(),
-                                    builder: (context, snapshots) {
-                                      if (snapshots.data == null) {
-                                        return CircularProgressIndicator();
-                                      } else {
-                                        return Container(
-                                          margin: EdgeInsets.only(
-                                              bottom: 10, top: 5),
-                                          child: ListView.builder(
-                                              physics:
-                                                  const NeverScrollableScrollPhysics(),
-                                              shrinkWrap: true,
-                                              itemCount: snapshots
-                                                  .data.documents.length,
-                                              itemBuilder: (context, index) {
-                                                DocumentSnapshot
-                                                    documentSnapshot = snapshots
-                                                        .data.documents[index];
-                                                return Container(
                                                   child: Card(
                                                     color: documentSnapshot[
                                                                 "todoPriority"] ==
@@ -406,11 +390,10 @@ class _ToDoRouteState extends State<ToDoRoute> with TickerProviderStateMixin {
                                                         ? Color(0xffFA7F72)
                                                         : documentSnapshot[
                                                                     "todoPriority"] ==
-                                                                listMatrix[
-                                                                    1]
-                                                            ? Color(
-                                                                0xff7FDBDA)
-                                                            : documentSnapshot["todoPriority"] ==
+                                                                listMatrix[1]
+                                                            ? Color(0xff7FDBDA)
+                                                            : documentSnapshot[
+                                                                        "todoPriority"] ==
                                                                     listMatrix[
                                                                         2]
                                                                 ? Color(
@@ -436,28 +419,12 @@ class _ToDoRouteState extends State<ToDoRoute> with TickerProviderStateMixin {
                                                                         8)),
                                                     child: ListTile(
                                                       dense: true,
-                                                      title: Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .start,
-                                                        children: [
-                                                          IconButton(
-                                                              color: Colors
-                                                                  .white,
-                                                              icon: Icon(Icons
-                                                                  .circle),
-                                                              onPressed:
-                                                                  () {
-                                                                print(
-                                                                    "completed");
-                                                              }),
-                                                          Text(documentSnapshot[
+                                                      title: Text(
+                                                          documentSnapshot[
                                                               "todoTitle"]),
-                                                        ],
-                                                      ),
                                                       trailing: IconButton(
-                                                        icon: Icon(
-                                                            Icons.delete),
+                                                        icon:
+                                                            Icon(Icons.delete),
                                                         onPressed: () {
                                                           deleteTodos(
                                                               documentSnapshot[
@@ -468,14 +435,29 @@ class _ToDoRouteState extends State<ToDoRoute> with TickerProviderStateMixin {
                                                       ),
                                                     ),
                                                   ),
-                                                );
-                                              }),
-                                        );
-                                      }
-                                    },
-                                  ),
-                                ],
-                              ),
+                                                ),
+                                              );
+                                            }),
+                                      );
+                                    }
+                                  },
+                                ),
+                                Container(
+                                    margin: EdgeInsets.symmetric(
+                                        vertical: 10, horizontal: 15),
+                                    // alignment: Alignment.centerRight,
+                                    child: Center(
+                                      heightFactor: 0.5,
+                                      child: FlatButton(
+                                          color: Colors.redAccent,
+                                          onPressed: () {
+                                            _showConfirmDialog(
+                                                documentSnapshot);
+                                            print("object");
+                                          },
+                                          child: Text("delete this group")),
+                                    ))
+                              ],
                             ),
                           ),
                         );

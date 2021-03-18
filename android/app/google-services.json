@@ -1,33 +1,41 @@
 {
   "project_info": {
-    "project_number": "706990931048",
-    "project_id": "routiner2-50d55",
-    "storage_bucket": "routiner2-50d55.appspot.com"
+    "project_number": "261468274611",
+    "project_id": "routiner4",
+    "storage_bucket": "routiner4.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:706990931048:android:cb5bb5a00358a810234fdd",
+        "mobilesdk_app_id": "1:261468274611:android:cba910c0311df1ee8ed5c6",
         "android_client_info": {
           "package_name": "com.example.project_1"
         }
       },
       "oauth_client": [
         {
-          "client_id": "706990931048-2f5a8ocs038v9v5cmnf5cjtfatkqqr7s.apps.googleusercontent.com",
+          "client_id": "261468274611-a3ijfrun3ph2c27qn4ua3auoocuj4r9u.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.project_1",
+            "certificate_hash": "7cf3d709c1846683228e96db8f5a705e926e330f"
+          }
+        },
+        {
+          "client_id": "261468274611-uos6p5ki99pvatlrjm0fbvuas8pl17nn.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyD2b0XkS_qUruILCK-b2FA_zZi2oGC-nmA"
+          "current_key": "AIzaSyBlZ-awcFU5MY6BxNhhTmjo-dKBdNSkvIU"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "706990931048-2f5a8ocs038v9v5cmnf5cjtfatkqqr7s.apps.googleusercontent.com",
+              "client_id": "261468274611-uos6p5ki99pvatlrjm0fbvuas8pl17nn.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

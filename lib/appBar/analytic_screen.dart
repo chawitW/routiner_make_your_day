@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 void main() {
   runApp(MaterialApp(home: AnalyticsPage()));
 }
 
 class AnalyticsPage extends StatefulWidget {
+  
   @override
   _SettingPageState createState() => _SettingPageState();
 }
 
 class _SettingPageState extends State<AnalyticsPage> {
+   final user = FirebaseAuth.instance.currentUser;
   List<String> jarName = [
     "Need and dairy jar",
     "Self-learning jar",
@@ -54,6 +57,7 @@ class _SettingPageState extends State<AnalyticsPage> {
                   children: [
                     StreamBuilder(
                       stream: FirebaseFirestore.instance
+                      .collection(user.email).doc(user.email)
                           .collection("CompletedTodo")
                           .snapshots(),
                       builder: (context, snapshots) {
@@ -64,10 +68,10 @@ class _SettingPageState extends State<AnalyticsPage> {
                             margin: EdgeInsets.only(bottom: 10, top: 5),
                             child: ListView.builder(
                                 shrinkWrap: true,
-                                itemCount: snapshots.data.documents.length,
+                                itemCount: snapshots.data.docs.length,
                                 itemBuilder: (context, index) {
                                   DocumentSnapshot documentSnapshot =
-                                      snapshots.data.documents[index];
+                                      snapshots.data.docs[index];
                                   return Card(
                                     color: Color(0xffF6F4E6),
                                     margin: EdgeInsets.only(
@@ -91,13 +95,13 @@ class _SettingPageState extends State<AnalyticsPage> {
                                                 child: ListView.builder(
                                                   shrinkWrap: true,
                                                   itemCount: snapshots
-                                                      .data.documents.length,
+                                                      .data.docs.length,
                                                   itemBuilder:
                                                       (context, index) {
                                                     DocumentSnapshot
                                                         documentSnapshot =
                                                         snapshots.data
-                                                            .documents[index];
+                                                            .docs[index];
                                                     return Text(
                                                         documentSnapshot[
                                                             "todoTitle"]);

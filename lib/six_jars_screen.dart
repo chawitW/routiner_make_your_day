@@ -178,8 +178,11 @@ class _SixJarsRouteState extends State<SixJarsRoute>
   _updateAmount(incomeDialog, autoJar) {
     if (autoJar && incomeDialog) {
       for (int i = 0; i < jarName.length; i++) {
-        DocumentReference documentReference =
-            FirebaseFirestore.instance.collection("Ledger").doc(jarName[i]);
+        DocumentReference documentReference = FirebaseFirestore.instance
+            .collection(user.email)
+            .doc(user.email)
+            .collection("Ledger")
+            .doc(jarName[i]);
 
         documentReference.set({
           "jarAmount":
@@ -192,6 +195,8 @@ class _SixJarsRouteState extends State<SixJarsRoute>
     } else if (!autoJar && incomeDialog) {
     } else {
       DocumentReference documentReference = FirebaseFirestore.instance
+          .collection(user.email)
+          .doc(user.email)
           .collection("Ledger")
           .doc(jarName[_currentJar]);
 
@@ -206,8 +211,11 @@ class _SixJarsRouteState extends State<SixJarsRoute>
   createLedgers(incomeDialog, autoJar) {
     if (incomeDialog && autoJar) {
       for (int i = 0; i < jarName.length; i++) {
-        DocumentReference documentReference =
-            FirebaseFirestore.instance.collection("Ledger").doc(jarName[i]);
+        DocumentReference documentReference = FirebaseFirestore.instance
+            .collection(user.email)
+            .doc(user.email)
+            .collection("Ledger")
+            .doc(jarName[i]);
 
         documentReference.collection("statementDate").doc(dateForm).set({
           "date": dateForm,
@@ -231,6 +239,8 @@ class _SixJarsRouteState extends State<SixJarsRoute>
     } else if (incomeDialog && !autoJar) {
     } else {
       DocumentReference documentReference = FirebaseFirestore.instance
+          .collection(user.email)
+          .doc(user.email)
           .collection("Ledger")
           .doc(jarName[_currentJar]);
 
@@ -272,16 +282,16 @@ class _SixJarsRouteState extends State<SixJarsRoute>
                       mainAxisSize: MainAxisSize.min,
                       children: <Widget>[
                         /*create initial amount btn*/
-                        Center(
-                          child: IconButton(
-                            icon: Text("create mock up"),
-                            onPressed: () {
-                              setState(() {
-                                createSixJars();
-                              });
-                            },
-                          ),
-                        ),
+                        // Center(
+                        //   child: IconButton(
+                        //     icon: Text("create mock up"),
+                        //     onPressed: () {
+                        //       setState(() {
+                        //         createSixJars();
+                        //       });
+                        //     },
+                        //   ),
+                        // ),
                         Card(
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8)),
@@ -309,13 +319,12 @@ class _SixJarsRouteState extends State<SixJarsRoute>
                                               return CircularProgressIndicator();
                                             for (int i = 0; i < 6; i++) {
                                               _currentAmount[i] = int.parse(
-                                                  snapshots.data.documents[i]
+                                                  snapshots.data.docs[i]
                                                       ["jarAmount"]);
                                               // print(_currentAmount[i]);
                                             }
                                             return Text(
-                                              snapshots.data.documents[
-                                                          _currentJar]
+                                              snapshots.data.docs[_currentJar]
                                                       ["jarAmount"] +
                                                   ".00",
                                               style: TextStyle(fontSize: 36),
@@ -390,10 +399,10 @@ class _SixJarsRouteState extends State<SixJarsRoute>
                                               const NeverScrollableScrollPhysics(),
                                           shrinkWrap: true,
                                           itemCount:
-                                              snapshots.data.documents.length,
+                                              snapshots.data.docs.length,
                                           itemBuilder: (context, index) {
                                             DocumentSnapshot documentSnapshot =
-                                                snapshots.data.documents[index];
+                                                snapshots.data.docs[index];
                                             return Container(
                                                 child: Card(
                                               color: Color(0xffF6F4E6),
@@ -434,14 +443,14 @@ class _SixJarsRouteState extends State<SixJarsRoute>
                                                           shrinkWrap: true,
                                                           itemCount: snapshots
                                                               .data
-                                                              .documents
+                                                              .docs
                                                               .length,
                                                           itemBuilder:
                                                               (context, index) {
                                                             DocumentSnapshot
                                                                 documentSnapshot =
                                                                 snapshots.data
-                                                                        .documents[
+                                                                        .docs[
                                                                     index];
                                                             return Card(
                                                               color: documentSnapshot[

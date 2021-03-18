@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 void main() => runApp(PlannerRoute());
 
@@ -19,6 +20,7 @@ class PlannerPage extends StatefulWidget {
 }
 
 class _PlannerState extends State<PlannerPage> with TickerProviderStateMixin {
+  final user = FirebaseAuth.instance.currentUser;
   TimeOfDay _time;
   CalendarController _controller;
   TabController dateController;
@@ -47,6 +49,8 @@ class _PlannerState extends State<PlannerPage> with TickerProviderStateMixin {
 
   createPlanners() {
     DocumentReference documentReference = FirebaseFirestore.instance
+    .collection(user.email)
+        .doc(user.email)
         .collection("Planner")
         .doc(_controller.selectedDay.toString());
 
@@ -351,6 +355,8 @@ class _PlannerState extends State<PlannerPage> with TickerProviderStateMixin {
               ),
               StreamBuilder(
                   stream: FirebaseFirestore.instance
+                      .collection(user.email)
+                      .doc(user.email)
                       .collection("Planner")
                       .doc(_controller.selectedDay.toString())
                       .collection("plannerList")
@@ -364,10 +370,10 @@ class _PlannerState extends State<PlannerPage> with TickerProviderStateMixin {
                           physics: NeverScrollableScrollPhysics(),
                           padding: EdgeInsets.only(top: 4),
                           shrinkWrap: true,
-                          itemCount: snapshots.data.documents.length,
+                          itemCount: snapshots.data.docs.length,
                           itemBuilder: (context, index) {
                             DocumentSnapshot documentSnapshot =
-                                snapshots.data.documents[index];
+                                snapshots.data.docs[index];
                             double _diffTime = _timeCalculate(
                                 documentSnapshot["plannerTimeStart"],
                                 documentSnapshot["plannerTimeEnd"]);
