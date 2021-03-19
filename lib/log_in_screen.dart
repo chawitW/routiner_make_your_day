@@ -2,29 +2,30 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:project_1/login.dart';
+import 'package:project_1/widget/google_signup_button_widget.dart';
 
 void main() => runApp(MaterialApp(
       theme:
           ThemeData(primaryColor: Colors.red, accentColor: Colors.yellowAccent),
       debugShowCheckedModeBanner: false,
-      home: SplashScreen(),
+      home: LoginScreen(),
     ));
 
-class SplashScreen extends StatefulWidget {
+class LoginScreen extends StatefulWidget {
   @override
-  _SplashScreenState createState() => _SplashScreenState();
+  _LoginScreenState createState() => _LoginScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
-    Timer(
-        Duration(seconds: 3),
-        // () => MyNavigator.goToHome(context));
+    // Timer(
+    //     Duration(seconds: 3),
+    //     // () => MyNavigator.goToHome(context));
 
-        () => Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => LoginPage())));
+    //     () => Navigator.pushReplacement(
+    //         context, MaterialPageRoute(builder: (context) => LoginPage())));
 
     // () => print("\n\n\nSplahScreen!!!!\n\n\n")); //after SplashSceen
   }
@@ -57,6 +58,7 @@ class _SplashScreenState extends State<SplashScreen> {
                           Padding(padding: EdgeInsets.only(bottom: 20.0))
                         ]),
                   )),
+                  Center(child: GoogleSignupButtonWidget(),),
               Expanded(
                 flex: 1,
                 child: Column(

@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:project_1/log_in_screen.dart';
 import 'package:project_1/main.dart';
+// import 'package:project_1/log_in_screen.dart';
 import 'package:project_1/provider/google_sign_in.dart';
 import 'package:project_1/widget/background_painter.dart';
 // import 'package:project_1/widget/logged_in_widget.dart';
@@ -22,7 +24,7 @@ class LoginPage extends StatelessWidget {
               } else if (snapshot.hasData) {
                 return HomePage();
               } else {
-                return SignUpWidget();
+                return LoginScreen();
               }
             },
           ),

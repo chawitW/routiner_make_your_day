@@ -16,8 +16,8 @@ import 'package:project_1/splash_screen.dart';
 // import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:project_1/widget/logged_in_widget.dart';
-
+// import 'package:project_1/widget/logged_in_widget.dart';
+import 'package:project_1/login.dart';
 
 // void main() => runApp(MaterialApp(
 //       home: SplashScreen(),
@@ -44,8 +44,60 @@ class _HomePageState extends State<HomePage> {
   final tabs = [
     ToDoRoute(),
     SixJarsRoute(),
-    PlannerRoute(),
+    PlannerPage(),
   ];
+
+  _showProfileDialog() {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+              backgroundColor: Color(0xffF6F4E6),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8)),
+              title: Center(child: Text("Profile")),
+              content: Container(
+                // alignment: Alignment.center,
+                // color: Colors.blueGrey.shade900,
+                child: Column(
+                  // crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CircleAvatar(
+                      maxRadius: 25,
+                      backgroundImage: NetworkImage(user.photoURL),
+                    ),
+                    SizedBox(height: 16),
+                    Text(
+                      'Name: ' + user.displayName,
+                      style: TextStyle(color: Color(0xff52575D)),
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      'Email: ' + user.email,
+                      style: TextStyle(color: Color(0xff52575D)),
+                    ),
+                    SizedBox(height: 8),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        primary: Color(0xffFDDB3A), // background
+                        onPrimary: Colors.white, // foreground
+                      ),
+                      onPressed: () {
+                        FirebaseAuth.instance.signOut();
+                        Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => LoginPage()));
+                      },
+                      child: Text('Logout'),
+                    ),
+                  ],
+                ),
+              ));
+        });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,10 +111,10 @@ class _HomePageState extends State<HomePage> {
                 backgroundImage: NetworkImage(user.photoURL),
               ),
               onPressed: () {
-
                 //maybe change into _showDialog in future
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => LoggedInWidget()));
+                // Navigator.push(context,
+                //     MaterialPageRoute(builder: (context) => LoggedInWidget()));
+                _showProfileDialog();
               },
             ),
           ],
@@ -89,7 +141,7 @@ class _HomePageState extends State<HomePage> {
           children: [
             ToDoRoute(),
             SixJarsRoute(),
-            PlannerRoute(),
+            PlannerPage(),
           ],
         ),
         drawer: Theme(

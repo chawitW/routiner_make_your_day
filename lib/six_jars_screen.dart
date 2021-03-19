@@ -5,6 +5,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 // import 'package:intl/date_symbol_data_local.dart';
 // initializeDateFormatting('fr_FR', null) async .then((_) => runMyCode());
+List tempPercent = [
+  "55",
+  "10",
+  "10",
+  "10",
+  "10",
+  "5",
+];
 
 void main() {
   runApp(MaterialApp(home: SixJarsRoute()));
@@ -65,6 +73,14 @@ class _SixJarsRouteState extends State<SixJarsRoute>
     "Self reward jar",
     "Donation jar",
   ];
+  List jarShortName = [
+    "NEED",
+    "EDUC",
+    "SAVE",
+    "INVT",
+    "SELF",
+    "GIVE",
+  ];
   List percentage = [
     "55",
     "10",
@@ -74,11 +90,6 @@ class _SixJarsRouteState extends State<SixJarsRoute>
     "5",
   ];
 
-  // _asyncMethod() async {
-  //   animationController = await AnimationController(vsync: this, duration: Duration(microseconds: 250));
-  //   degOneTranslationAnimation =
-  //       Tween(begin: 0.0, end: 1.0).animate(animationController);
-  // }
   _pickDate() async {
     DateTime date = await showDatePicker(
         context: context,
@@ -154,9 +165,9 @@ class _SixJarsRouteState extends State<SixJarsRoute>
 
   @override
   void dispose() {
-    jarController.dispose();
-    animationController.dispose();
-    _text.dispose();
+    jarController?.dispose();
+    animationController?.dispose();
+    _text?.dispose();
     super.dispose();
   }
 
@@ -176,7 +187,7 @@ class _SixJarsRouteState extends State<SixJarsRoute>
   }
 
   _updateAmount(incomeDialog, autoJar) {
-    if (autoJar && incomeDialog) {
+    if (incomeDialog) {
       for (int i = 0; i < jarName.length; i++) {
         DocumentReference documentReference = FirebaseFirestore.instance
             .collection(user.email)
@@ -186,13 +197,12 @@ class _SixJarsRouteState extends State<SixJarsRoute>
 
         documentReference.set({
           "jarAmount":
-              ((int.parse(amount) * int.parse(percentage[i]) / 100).round() +
+              ((int.parse(amount) * int.parse(tempPercent[i]) / 100).round() +
                       _currentAmount[i])
                   .toString(),
           "jarNumber": i.toString(),
         });
       }
-    } else if (!autoJar && incomeDialog) {
     } else {
       DocumentReference documentReference = FirebaseFirestore.instance
           .collection(user.email)
@@ -209,35 +219,36 @@ class _SixJarsRouteState extends State<SixJarsRoute>
   }
 
   createLedgers(incomeDialog, autoJar) {
-    if (incomeDialog && autoJar) {
+    if (incomeDialog) {
       for (int i = 0; i < jarName.length; i++) {
-        DocumentReference documentReference = FirebaseFirestore.instance
-            .collection(user.email)
-            .doc(user.email)
-            .collection("Ledger")
-            .doc(jarName[i]);
+        if (tempPercent[i] != "0") {
+          DocumentReference documentReference = FirebaseFirestore.instance
+              .collection(user.email)
+              .doc(user.email)
+              .collection("Ledger")
+              .doc(jarName[i]);
 
-        documentReference.collection("statementDate").doc(dateForm).set({
-          "date": dateForm,
-        });
+          documentReference.collection("statementDate").doc(dateForm).set({
+            "date": dateForm,
+          });
 
-        documentReference
-            .collection("statementDate")
-            .doc(dateForm)
-            .collection("statementList")
-            .doc()
-            .set({
-          "ledgerDetails": details,
-          "ledgerDate": dateForm,
-          "ledgerTime": timeForm,
-          "ledgerType": stmType,
-          "ledgerAmount": (int.parse(amount) * int.parse(percentage[i]) / 100)
-              .round()
-              .toString(),
-        });
+          documentReference
+              .collection("statementDate")
+              .doc(dateForm)
+              .collection("statementList")
+              .doc()
+              .set({
+            "ledgerDetails": details,
+            "ledgerDate": dateForm,
+            "ledgerTime": timeForm,
+            "ledgerType": stmType,
+            "ledgerAmount": (int.parse(amount) * int.parse(percentage[i]) / 100)
+                .round()
+                .toString(),
+          });
+        }
       }
-    } else if (incomeDialog && !autoJar) {
-    } else {
+    }  else {
       DocumentReference documentReference = FirebaseFirestore.instance
           .collection(user.email)
           .doc(user.email)
@@ -398,8 +409,7 @@ class _SixJarsRouteState extends State<SixJarsRoute>
                                           physics:
                                               const NeverScrollableScrollPhysics(),
                                           shrinkWrap: true,
-                                          itemCount:
-                                              snapshots.data.docs.length,
+                                          itemCount: snapshots.data.docs.length,
                                           itemBuilder: (context, index) {
                                             DocumentSnapshot documentSnapshot =
                                                 snapshots.data.docs[index];
@@ -442,9 +452,7 @@ class _SixJarsRouteState extends State<SixJarsRoute>
                                                               NeverScrollableScrollPhysics(),
                                                           shrinkWrap: true,
                                                           itemCount: snapshots
-                                                              .data
-                                                              .docs
-                                                              .length,
+                                                              .data.docs.length,
                                                           itemBuilder:
                                                               (context, index) {
                                                             DocumentSnapshot
@@ -521,8 +529,8 @@ class _SixJarsRouteState extends State<SixJarsRoute>
                 ),
               ),
               Positioned(
-                right: 10,
-                bottom: 10,
+                right: 15,
+                bottom: 15,
                 child: Stack(
                   alignment: Alignment.bottomRight,
                   children: <Widget>[
@@ -533,52 +541,60 @@ class _SixJarsRouteState extends State<SixJarsRoute>
                         width: 150.0,
                       ),
                     ),
-                    Transform.translate(
-                      offset: Offset.fromDirection(getRadainsFormDegree(270),
-                          degOneTranslationAnimation.value * 80),
-                      child: Transform(
-                        transform: Matrix4.rotationZ(
-                            getRadainsFormDegree(rotationAnimation.value)),
-                        alignment: Alignment.center,
-                        child: CircularButton(
-                          color: Color(0xffFA7F72),
-                          width: 50,
-                          height: 50,
-                          icon: Icon(
-                            Icons.remove,
-                            color: Color(0xffF6F4E6),
+                    Positioned(
+                      bottom: 5,
+                      right: 5,
+                      child: Transform.translate(
+                        offset: Offset.fromDirection(getRadainsFormDegree(270),
+                            degOneTranslationAnimation.value * 80),
+                        child: Transform(
+                          transform: Matrix4.rotationZ(
+                              getRadainsFormDegree(rotationAnimation.value)),
+                          alignment: Alignment.center,
+                          child: CircularButton(
+                            color: Color(0xffFA7F72),
+                            width: 50,
+                            height: 50,
+                            icon: Icon(
+                              Icons.remove,
+                              color: Color(0xffF6F4E6),
+                            ),
+                            onClick: () {
+                              setState(() {
+                                incomeDialog = false;
+                                details = "";
+                                _date = DateTime.now();
+                                _time = TimeOfDay.now();
+                                _showDialog(incomeDialog);
+                              });
+                            },
                           ),
-                          onClick: () {
-                            setState(() {
-                              incomeDialog = false;
-                              details = "";
-                              _date = DateTime.now();
-                              _time = TimeOfDay.now();
-                              _showDialog(incomeDialog);
-                            });
-                          },
                         ),
                       ),
                     ),
-                    Transform.translate(
-                      offset: Offset.fromDirection(getRadainsFormDegree(180),
-                          degOneTranslationAnimation.value * 80),
-                      child: CircularButton(
-                        color: Color(0xffADE498),
-                        width: 50,
-                        height: 50,
-                        icon: Icon(
-                          Icons.add,
-                          color: Color(0xffF6F4E6),
+                    Positioned(
+                      bottom: 5,
+                      right: 5,
+                      child: Transform.translate(
+                        offset: Offset.fromDirection(getRadainsFormDegree(180),
+                            degOneTranslationAnimation.value * 80),
+                        child: CircularButton(
+                          color: Color(0xffADE498),
+                          width: 50,
+                          height: 50,
+                          icon: Icon(
+                            Icons.add,
+                            color: Color(0xffF6F4E6),
+                          ),
+                          onClick: () {
+                            details = "";
+                            incomeDialog = true;
+                            _date = DateTime.now();
+                            _time = TimeOfDay.now();
+                            // Text("Current Time: ${_currentTime.format(context)}")
+                            _showDialog(incomeDialog);
+                          },
                         ),
-                        onClick: () {
-                          details = "";
-                          incomeDialog = true;
-                          _date = DateTime.now();
-                          _time = TimeOfDay.now();
-                          // Text("Current Time: ${_currentTime.format(context)}")
-                          _showDialog(incomeDialog);
-                        },
                       ),
                     ),
                     CircularButton(
@@ -702,7 +718,8 @@ class _SixJarsRouteState extends State<SixJarsRoute>
                         Column(
                           children: [
                             for (int i = 0; i < jarName.length; i++)
-                              listOfEachJar(jarName[i], percentage[i]),
+                              listOfEachJar(jarShortName[i], percentage[i],
+                                  jarIcon[i], i),
                           ],
                         ),
                       Row(
@@ -711,6 +728,7 @@ class _SixJarsRouteState extends State<SixJarsRoute>
                           FlatButton(
                               onPressed: () {
                                 setState(() {
+                                  tempPercent = percentage;
                                   Navigator.of(context).pop();
                                   _updateAmount(incomeDialog, autoJar);
                                   createLedgers(incomeDialog, autoJar);
@@ -735,9 +753,14 @@ class _SixJarsRouteState extends State<SixJarsRoute>
   }
 }
 
-Widget listOfEachJar(jarName, percentage) {
+Widget listOfEachJar(jarName, percentage, jarIcon, i) {
   return ListTile(
-    title: Text(jarName),
+    title: Row(
+      children: [
+        Expanded(child: Icon(jarIcon)),
+        Expanded(child: Text(jarName)),
+      ],
+    ),
     trailing: Container(
       width: 100,
       child: Row(
@@ -752,7 +775,9 @@ Widget listOfEachJar(jarName, percentage) {
                     decoration: InputDecoration(
                       hintText: percentage,
                     ),
-                    onChanged: (input) {},
+                    onChanged: (input) {
+                      tempPercent[i] = input;
+                    },
                   ),
                 ),
               ],
