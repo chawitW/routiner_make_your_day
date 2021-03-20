@@ -31,7 +31,7 @@ class _SixJarsRouteState extends State<SixJarsRoute>
   final user = FirebaseAuth.instance.currentUser;
 
   String details = "";
-  
+
   String timeForm;
   // bool _validate = false;
   final _text = TextEditingController();
@@ -249,7 +249,7 @@ class _SixJarsRouteState extends State<SixJarsRoute>
           });
         }
       }
-    }  else {
+    } else {
       DocumentReference documentReference = FirebaseFirestore.instance
           .collection(user.email)
           .doc(user.email)
@@ -640,6 +640,28 @@ class _SixJarsRouteState extends State<SixJarsRoute>
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
+                      StreamBuilder(
+                          stream: FirebaseFirestore.instance
+                              .collection(user.email)
+                              .doc(user.email)
+                              .collection("Percent")
+                              .orderBy("jarNumber")
+                              .snapshots(),
+                          builder: (context, snapshots) {
+                            if (snapshots.data == null) {
+                              return CircularProgressIndicator();
+                            } else {
+                              for (int i = 0; i < 6; i++) {
+                                DocumentSnapshot documentSnapshot =
+                                    snapshots.data.docs[i];
+                                tempPercent[i] = documentSnapshot["percent"];
+                              }
+                            }
+                            return Container(
+                              width: 0,
+                              height: 0,
+                            );
+                          }),
                       Container(
                         margin: EdgeInsets.symmetric(vertical: 5),
                         child: TextField(
