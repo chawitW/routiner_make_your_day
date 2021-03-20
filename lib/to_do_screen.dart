@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:intl/intl.dart';
 
 void main() {
   runApp(MaterialApp(home: ToDoRoute()));
@@ -44,12 +45,19 @@ class _ToDoRouteState extends State<ToDoRoute> with TickerProviderStateMixin {
     "Admin",
   ];
   bool expand = false;
+  String _timeStart, _timeEnd;
+  bool isTimeStart = false;
+  TimeOfDay _time;
+  String dateForm;
+  DateTime _date;
+  int activity_index;
 
   @override
   void initState() {
     activity = activityList.first;
     priority = listMatrix.first;
     super.initState();
+    _time = TimeOfDay.now();
   }
 
   @override
@@ -89,27 +97,26 @@ class _ToDoRouteState extends State<ToDoRoute> with TickerProviderStateMixin {
   }
 
   _addToPlanner() {
-    // DocumentReference documentReference = FirebaseFirestore.instance
-    // .collection(user.email)
-    //     .doc(user.email)
-    //     .collection("Planner")
-    //     .doc(_controller.selectedDay.toString());
+    DocumentReference documentReference = FirebaseFirestore.instance
+        .collection(user.email)
+        .doc(user.email)
+        .collection("Planner")
+        .doc(dateForm);
 
-    // documentReference.set({
-    //   "selectedDate": _controller.selectedDay.toString(),
-    // });
+    documentReference.set({
+      "selectedDate": dateForm,
+    });
 
-    // Map<String, String> planners = {
-    //   "plannerDetails": input,
-    //   "plannerActivityNumber": activity_index.toString(),
-    //   "plannerTimeStart": _timeStart,
-    // //   "plannerTimeEnd": _timeEnd,
-    // };
+    Map<String, String> planners = {
+      "plannerDetails": input,
+      "plannerActivityNumber": activity_index.toString(),
+      "plannerTimeStart": _timeStart,
+      "plannerTimeEnd": _timeEnd,
+    };
 
-    // documentReference.collection("plannerList").doc(input).set(planners);
+    documentReference.collection("plannerList").doc(input).set(planners);
   }
 
-  
   createTodos() {
     DocumentReference documentReference = FirebaseFirestore.instance
         .collection(user.email)
@@ -149,6 +156,39 @@ class _ToDoRouteState extends State<ToDoRoute> with TickerProviderStateMixin {
         .doc(item)
         .delete()
         .whenComplete(() {});
+  }
+
+  _pickTime(isTimeStart) async {
+    TimeOfDay time = await showTimePicker(
+        initialTime: TimeOfDay.now(),
+        context: context,
+        builder: (BuildContext context, Widget child) {
+          return StatefulBuilder(
+            builder: (context, setState) {
+              return Theme(
+                data: ThemeData(),
+                child: child,
+              );
+            },
+          );
+        });
+    if (time != null)
+      setState(() {
+        _time = time;
+        isTimeStart
+            ? _timeStart = _timeFormatter(_time)
+            : _timeEnd = _timeFormatter(_time);
+      });
+  }
+
+  String _timeFormatter(_time) {
+    return int.parse(_time.hour.toString()) < 10
+        ? int.parse(_time.minute.toString()) < 10
+            ? "0" + _time.hour.toString() + ":" + "0" + _time.minute.toString()
+            : "0" + _time.hour.toString() + ":" + _time.minute.toString()
+        : int.parse(_time.minute.toString()) < 10
+            ? _time.hour.toString() + ":" + "0" + _time.minute.toString()
+            : _time.hour.toString() + ":" + _time.minute.toString();
   }
 
   _showConfirmDialog(documentSnapshot) {
@@ -199,6 +239,9 @@ class _ToDoRouteState extends State<ToDoRoute> with TickerProviderStateMixin {
   }
 
   _showFormDialog() {
+    addToPlanner = false;
+    _timeStart = null;
+    _timeEnd = null;
     priorityController = TabController(vsync: this, length: 4, initialIndex: 0);
     showDialog(
         context: context,
@@ -303,7 +346,7 @@ class _ToDoRouteState extends State<ToDoRoute> with TickerProviderStateMixin {
                                 decoration: ShapeDecoration(
                                   shape: OutlineInputBorder(
                                       borderSide:
-                                          BorderSide(color: Colors.teal)),
+                                          BorderSide(color: Colors.grey)),
                                 ),
                                 child: Container(
                                   margin: EdgeInsets.only(left: 10),
@@ -316,7 +359,6 @@ class _ToDoRouteState extends State<ToDoRoute> with TickerProviderStateMixin {
                                           setState(() {
                                             activity = newValue;
                                           });
-                                          print(activity);
                                         },
                                         items: activityList.map((valueItem) {
                                           return DropdownMenuItem<String>(
@@ -327,6 +369,78 @@ class _ToDoRouteState extends State<ToDoRoute> with TickerProviderStateMixin {
                                   ),
                                 ),
                               ),
+                              Container(
+                                decoration: ShapeDecoration(
+                                  shape: OutlineInputBorder(
+                                      borderSide:
+                                          BorderSide(color: Colors.grey)),
+                                ),
+                                child: ListTile(
+                                  dense: true,
+                                  title: _timeStart == null ?? _timeStart == ""
+                                      ? Text(
+                                          "Select start time.",
+                                          style: TextStyle(fontSize: 16),
+                                        )
+                                      : Text(_timeStart,
+                                          style: TextStyle(fontSize: 16)),
+                                  onTap: () {
+                                    isTimeStart = true;
+                                    _pickTime(isTimeStart).then((value) {
+                                      if (value == null) setState(() {});
+                                    });
+                                  },
+                                ),
+                              ),
+
+                              Container(
+                                margin: EdgeInsets.only(top: 10),
+                                decoration: ShapeDecoration(
+                                  shape: OutlineInputBorder(
+                                      borderSide:
+                                          BorderSide(color: Colors.teal)),
+                                ),
+                                child: ListTile(
+                                  dense: true,
+                                  title: _timeEnd == null ?? _timeEnd == ""
+                                      ? Text("Select end time.",
+                                          style: TextStyle(fontSize: 16))
+                                      : Text(_timeEnd,
+                                          style: TextStyle(fontSize: 16)),
+                                  onTap: () {
+                                    isTimeStart = false;
+                                    _pickTime(isTimeStart).then((value) {
+                                      if (value == null) setState(() {});
+                                    });
+                                  },
+                                ),
+                              ),
+                              Container(
+                                margin: EdgeInsets.only(top: 10),
+                                decoration: ShapeDecoration(
+                                  shape: OutlineInputBorder(
+                                      borderSide:
+                                          BorderSide(color: Colors.teal)),
+                                ),
+                                child: ListTile(
+                                  dense: true,
+                                  title: _date == null
+                                      ? Text(
+                                          "Date: " +
+                                              DateFormat.yMMMMd()
+                                                  .format(DateTime.now()),
+                                          style: TextStyle(fontSize: 16))
+                                      : Text(
+                                          "Date: " +
+                                              DateFormat.yMMMd().format(_date),
+                                          style: TextStyle(fontSize: 16)),
+                                  onTap: () {
+                                    _pickDate().then((value) {
+                                      if (value == null) setState(() {});
+                                    });
+                                  },
+                                ),
+                              ),
                             ],
                           ),
                         Row(
@@ -334,8 +448,17 @@ class _ToDoRouteState extends State<ToDoRoute> with TickerProviderStateMixin {
                           children: <Widget>[
                             FlatButton(
                                 onPressed: () {
+                                  if (addToPlanner) {
+                                    for (int i = 0;
+                                        i < activityList.length;
+                                        i++) {
+                                      if (activity == activityList[i]) {
+                                        activity_index = i + 1;
+                                      }
+                                    }
+                                    _addToPlanner();
+                                  }
                                   createTodos();
-                                  if (addToPlanner) _addToPlanner();
                                   Navigator.of(context).pop();
                                 },
                                 child: Container(
@@ -359,6 +482,36 @@ class _ToDoRouteState extends State<ToDoRoute> with TickerProviderStateMixin {
         });
   }
 
+  _pickDate() async {
+    DateTime date = await showDatePicker(
+        context: context,
+        initialDate: DateTime.now(),
+        firstDate: DateTime(2000),
+        lastDate: DateTime(2222),
+        builder: (BuildContext context, Widget child) {
+          return StatefulBuilder(
+            builder: (context, setState) {
+              return Theme(
+                data: ThemeData(),
+                child: child,
+              );
+            },
+          );
+        });
+    if (date != null)
+      setState(() {
+        _date = date;
+        String month = _date.month.toString();
+        if (_date.month < 10) month = "0" + month;
+        dateForm = _date.year.toString() +
+            "-" +
+            month +
+            "-" +
+            _date.day.toString() +
+            " 12:00:00.000Z";
+      });
+  }
+
   @override
   Widget build(BuildContext context) {
     // Padding(padding: const EdgeInsets.all(20),);
@@ -371,6 +524,7 @@ class _ToDoRouteState extends State<ToDoRoute> with TickerProviderStateMixin {
           backgroundColor: Color(0xffFDDB3A),
           onPressed: () {
             priority = listMatrix.first;
+            _date = DateTime.now();
             _showFormDialog();
           },
           child: Icon(
@@ -450,6 +604,8 @@ class _ToDoRouteState extends State<ToDoRoute> with TickerProviderStateMixin {
                                                   snapshots.data.docs[index];
                                               return Container(
                                                 child: Dismissible(
+                                                  direction: DismissDirection
+                                                      .startToEnd,
                                                   key: ValueKey(index),
                                                   onDismissed: (directoin) {
                                                     _completedTask(

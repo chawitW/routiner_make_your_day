@@ -27,7 +27,7 @@ class _PlannerState extends State<PlannerPage> with TickerProviderStateMixin {
   bool addToTodo = false;
   bool isTimeStart = false;
   String input = "";
-  
+
   int activity_index;
   String _timeStart, _timeEnd;
 
@@ -218,15 +218,16 @@ class _PlannerState extends State<PlannerPage> with TickerProviderStateMixin {
                       child: Container(
                         margin: EdgeInsets.only(left: 10),
                         child: DropdownButtonHideUnderline(
-                          child: DropdownButton(
+                          child: DropdownButton<String>(
                               isExpanded: true,
                               value: activity,
                               isDense: true,
+                              hint: Text("HINT"),
                               onChanged: (newValue) {
                                 setState(() {
                                   activity = newValue;
                                 });
-                                print(activity);
+                                // print(activity);
                               },
                               items: activityList.map((valueItem) {
                                 return DropdownMenuItem<String>(
@@ -237,27 +238,45 @@ class _PlannerState extends State<PlannerPage> with TickerProviderStateMixin {
                         ),
                       ),
                     ),
-                    ListTile(
-                      title: _timeStart == null ?? _timeStart == ""
-                          ? Text("Select start time.")
-                          : Text(_timeStart),
-                      onTap: () {
-                        isTimeStart = true;
-                        _pickTime(isTimeStart).then((value) {
-                          if (value == null) setState(() {});
-                        });
-                      },
+                    Container(
+                      // margin: EdgeInsets.only(top: 10),
+                      decoration: ShapeDecoration(
+                        shape: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.teal)),
+                      ),
+                      child: ListTile(
+                        dense: true,
+                        title: _timeStart == null ?? _timeStart == ""
+                            ? Text("Select start time.",
+                                style: TextStyle(fontSize: 16))
+                            : Text(_timeStart, style: TextStyle(fontSize: 16)),
+                        onTap: () {
+                          isTimeStart = true;
+                          _pickTime(isTimeStart).then((value) {
+                            if (value == null) setState(() {});
+                          });
+                        },
+                      ),
                     ),
-                    ListTile(
-                      title: _timeEnd == null ?? _timeEnd == ""
-                          ? Text("Select end time.")
-                          : Text(_timeEnd),
-                      onTap: () {
-                        isTimeStart = false;
-                        _pickTime(isTimeStart).then((value) {
-                          if (value == null) setState(() {});
-                        });
-                      },
+                    Container(
+                      margin: EdgeInsets.only(top: 10),
+                      decoration: ShapeDecoration(
+                        shape: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.teal)),
+                      ),
+                      child: ListTile(
+                        dense: true,
+                        title: _timeEnd == null ?? _timeEnd == ""
+                            ? Text("Select end time.",
+                                style: TextStyle(fontSize: 16))
+                            : Text(_timeEnd, style: TextStyle(fontSize: 16)),
+                        onTap: () {
+                          isTimeStart = false;
+                          _pickTime(isTimeStart).then((value) {
+                            if (value == null) setState(() {});
+                          });
+                        },
+                      ),
                     ),
                     ListTile(
                       // dense: true,

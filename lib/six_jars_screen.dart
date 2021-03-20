@@ -31,7 +31,7 @@ class _SixJarsRouteState extends State<SixJarsRoute>
   final user = FirebaseAuth.instance.currentUser;
 
   String details = "";
-  String dateForm;
+  
   String timeForm;
   // bool _validate = false;
   final _text = TextEditingController();
@@ -50,6 +50,7 @@ class _SixJarsRouteState extends State<SixJarsRoute>
   // int _currentPage = 0;
   TabController jarController;
   TimeOfDay _time;
+  String dateForm;
   DateTime _date;
   int _currentJar = 0;
   List<int> _currentAmount = [0, 0, 0, 0, 0, 0];
