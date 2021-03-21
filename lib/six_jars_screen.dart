@@ -48,16 +48,19 @@ class _SixJarsRouteState extends State<SixJarsRoute>
 
   // PageController pageController = PageController(initialPage: 0);
   // int _currentPage = 0;
-  TabController jarController;
+
   TimeOfDay _time;
   String dateForm;
   DateTime _date;
-  int _currentJar = 0;
+
   List<int> _currentAmount = [0, 0, 0, 0, 0, 0];
   // var stmType_index = 0;
   String amount = "0.00";
   String stmType = "";
   bool autoJar = true;
+
+  TabController jarController;
+  int _currentJar = 0;
   List jarIcon = [
     Icons.account_balance_wallet_rounded,
     Icons.school_rounded,
@@ -110,7 +113,7 @@ class _SixJarsRouteState extends State<SixJarsRoute>
     if (date != null)
       setState(() {
         _date = date;
-        dateForm = DateFormat.yMMMd().format(_date);
+        dateForm = DateFormat.yMMMMd().format(_date);
       });
   }
 
@@ -398,6 +401,7 @@ class _SixJarsRouteState extends State<SixJarsRoute>
                                     .doc(jarName[_currentJar])
                                     .collection("statementDate")
                                     .orderBy('date', descending: true)
+                                    .limit(7)
                                     .snapshots(),
                                 builder: (context, snapshots) {
                                   if (snapshots.data == null) {
@@ -441,6 +445,7 @@ class _SixJarsRouteState extends State<SixJarsRoute>
                                                             "statementList")
                                                         .orderBy("ledgerTime",
                                                             descending: true)
+                                                        // .limit(1)
                                                         .snapshots(),
                                                     builder:
                                                         (context, snapshots) {
@@ -621,6 +626,7 @@ class _SixJarsRouteState extends State<SixJarsRoute>
   }
 
   _showDialog(incomeDialog) {
+    autoJar = true;
     timeForm = _timeFormatter(_time);
     dateForm = DateFormat.yMMMMd().format(DateTime.now());
     showDialog(

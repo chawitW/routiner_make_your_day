@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
+import 'package:autocomplete_textfield/autocomplete_textfield.dart';
 
 void main() {
   runApp(MaterialApp(home: ToDoRoute()));
@@ -239,6 +240,7 @@ class _ToDoRouteState extends State<ToDoRoute> with TickerProviderStateMixin {
   }
 
   _showFormDialog() {
+    priority = listMatrix.first;
     addToPlanner = false;
     _timeStart = null;
     _timeEnd = null;

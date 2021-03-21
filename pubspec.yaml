@@ -38,6 +38,7 @@ dependencies:
 
   provider: ^4.3.2+2
   font_awesome_flutter: ^8.10.0
+  autocomplete_textfield: ^1.7.3
 
   # flutter_local_notifications: ^4.0.1+2
   # firebase_core_platform_interface: ^4.0.0
