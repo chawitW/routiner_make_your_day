@@ -54,6 +54,14 @@ class _SettingPageState extends State<AnalyticsPage>
     "Crisis",
     "Admin",
   ];
+  List _amountTime = [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+  ];
 
   Widget _buildCompletedTask() {
     return StreamBuilder(
@@ -271,8 +279,9 @@ class _SettingPageState extends State<AnalyticsPage>
   }
 
   _buildPieChart() {
+    _amountTime = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
     return AspectRatio(
-      aspectRatio: 1,
+      aspectRatio: 1.3,
       child: Card(
         color: Color(0xff52575D),
         child: Column(
@@ -283,7 +292,66 @@ class _SettingPageState extends State<AnalyticsPage>
             Expanded(
               child: AspectRatio(
                 aspectRatio: 1,
-                child: PieChart(
+                child: StreamBuilder(
+                    stream: FirebaseFirestore.instance
+                        .collection(user.email)
+                        .doc(user.email)
+                        .collection("Planner")
+                        .orderBy("selectedDate", descending: false)
+                        .snapshots(),
+                    builder: (context, snapshots) {
+                      if (!snapshots.hasData) {
+                        return CircularProgressIndicator();
+                      } else {
+                        var _countDay = snapshots.data.docs.length;
+                        _amountTime = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
+                        return Column(
+                          children: [
+                            for (int i = 0; i < snapshots.data.docs.length; i++)
+                              _drawPieChart(snapshots, _countDay, i),
+                          ],
+                        );
+                      }
+                    }),
+              ),
+            ),
+            const SizedBox(
+              width: 28,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  _drawPieChart(snapshots, _countDay, i) {
+    return StreamBuilder(
+      stream: FirebaseFirestore.instance
+          .collection(user.email)
+          .doc(user.email)
+          .collection("Planner")
+          .doc(snapshots.data.docs[i]["selectedDate"])
+          .collection("plannerList")
+          .snapshots(),
+      builder: (context, snapshots) {
+        if (!snapshots.hasData) {
+          return CircularProgressIndicator();
+        } else {
+          print(snapshots.data.docs.length);
+          for (int j = 0; j < snapshots.data.docs.length; j++) {
+            _amountTime[
+                int.parse(snapshots.data.docs[j]["plannerActivityNumber"]) -
+                    1] += _timeCalculate(
+                snapshots.data.docs[j]["plannerTimeStart"],
+                snapshots.data.docs[j]["plannerTimeEnd"]);
+          }
+          if (i == _countDay - 1) {
+            return Column(
+              children: [
+                SizedBox(
+                  height: 25,
+                ),
+                PieChart(
                   PieChartData(
                       pieTouchData:
                           PieTouchData(touchCallback: (pieTouchResponse) {
@@ -303,41 +371,33 @@ class _SettingPageState extends State<AnalyticsPage>
                       centerSpaceRadius: 40,
                       sections: showingSections()),
                 ),
-              ),
-            ),
-            Card(
-              color: Color(0xffF6F4E6),
-              margin: EdgeInsets.only(left: 15,right: 15,top: 15, bottom: 10),
-              child: Container(
-                margin: EdgeInsets.symmetric(horizontal: 15),
-                child: Column(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    for (int i = 0; i < 6; i++)
-                      Indicator(
-                        color: activityColors[i],
-                        text: activityList[i],
-                        isSquare: false,
-                      ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(
-              width: 28,
-            ),
-          ],
-        ),
-      ),
+              ],
+            );
+          }
+          return Text("");
+        }
+      },
     );
+  }
+
+  double _timeCalculate(_startTime, _endTime) {
+    int startTime, endTime;
+    double diffTime;
+    var arrStart = _startTime.split(":");
+    var arrEnd = _endTime.split(":");
+
+    startTime = int.parse(arrStart[0]) * 60 + int.parse(arrStart[1]);
+    endTime = int.parse(arrEnd[0]) * 60 + int.parse(arrEnd[1]);
+    diffTime = (endTime - startTime) / 60;
+    return diffTime;
   }
 
   @override
   void initState() {
+    _amountTime = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
     super.initState();
     // TODO: implement initState
+
     jarController = TabController(vsync: this, length: 6, initialIndex: 0);
     rangeController = TabController(vsync: this, length: 3, initialIndex: 0);
   }
@@ -397,6 +457,27 @@ class _SettingPageState extends State<AnalyticsPage>
                   title: Text("Time boxing pie chart"),
                   children: [
                     _buildPieChart(),
+                    Card(
+                      color: Color(0xffF6F4E6),
+                      margin: EdgeInsets.only(
+                          left: 15, right: 15, top: 15, bottom: 10),
+                      child: Container(
+                        margin: EdgeInsets.symmetric(horizontal: 15),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            for (int i = 0; i < 6; i++)
+                              Indicator(
+                                color: activityColors[i],
+                                text: activityList[i],
+                                isSquare: false,
+                              ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -439,20 +520,25 @@ class _SettingPageState extends State<AnalyticsPage>
   }
 
   List<PieChartSectionData> showingSections() {
+    var _sumTime = 0.0;
+    for (int i = 0; i < 6; i++) {
+      _sumTime += _amountTime[i];
+      print(_sumTime);
+    }
     return List.generate(6, (i) {
       final isTouched = i == touchedIndex;
-      final double fontSize = isTouched ? 25 : 16;
+      final double fontSize = isTouched ? 25 : 14;
       final double radius = isTouched ? 60 : 50;
       return PieChartSectionData(
-            color: activityColors[i],
-            value: (i+1)*10.0,
-            title: '$i',
-            radius: radius,
-            titleStyle: TextStyle(
-                fontSize: fontSize,
-                fontWeight: FontWeight.bold,
-                color: Color(0xff52575D)),
-          );
+        color: activityColors[i],
+        value: _amountTime[i],
+        title: ((_amountTime[i] / _sumTime) * 100).toStringAsFixed(0) + "%",
+        radius: radius,
+        titleStyle: TextStyle(
+            fontSize: fontSize,
+            fontWeight: FontWeight.bold,
+            color: Color(0xff52575D)),
+      );
     });
   }
 }
