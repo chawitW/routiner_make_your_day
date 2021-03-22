@@ -1,9 +1,11 @@
 import 'dart:convert';
+import 'indicator.dart';
 
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+// import 'package:pie_chart/pie_chart.dart';
 
 void main() {
   runApp(MaterialApp(home: AnalyticsPage()));
@@ -35,6 +37,22 @@ class _SettingPageState extends State<AnalyticsPage>
     "Not urgent and important",
     "Urgent and not important",
     "Not urgent and not important"
+  ];
+  List<Color> activityColors = [
+    Color(0xff7FDBDA),
+    Color(0xffFFD5CD),
+    Color(0xff8675A9),
+    Color(0xffADE498),
+    Color(0xffFA7F72),
+    Color(0xffF6F4E6),
+  ];
+  List activityList = [
+    "Core responsibility",
+    "Personal growth",
+    "Managing people",
+    "Free time",
+    "Crisis",
+    "Admin",
   ];
 
   Widget _buildCompletedTask() {
@@ -100,6 +118,8 @@ class _SettingPageState extends State<AnalyticsPage>
     );
   }
 
+  int touchedIndex;
+
   List<String> range = [
     "Week",
     "Month",
@@ -124,28 +144,24 @@ class _SettingPageState extends State<AnalyticsPage>
       // margin: EdgeInsets.all(10),
       child: Column(
         children: [
-          TabBar(
-            unselectedLabelColor: Color(0xFF41444B),
-            indicatorColor: Color(0xffFDDB3A),
-            controller: rangeController,
-            tabs: <Tab>[
-              for (int i = 0; i < 3; i++)
-                Tab(
-                    icon: Text(range[i],
-                        style: TextStyle(
-                            color: _currentRange == i
-                                ? Color(0xffFDDB3A)
-                                : Color(0xFF41444B))))
-              // Icon(jarIcon[i],
-              // color: _currentJar == i
-              //     ? Color(0xffFDDB3A)
-              //     : Color(0xFF41444B))),
-            ],
-            onTap: (index) {
-              _currentRange = index;
-              setState(() {});
-            },
-          ),
+          // TabBar(
+          //   unselectedLabelColor: Color(0xFF41444B),
+          //   indicatorColor: Color(0xffFDDB3A),
+          //   controller: rangeController,
+          //   tabs: <Tab>[
+          //     for (int i = 0; i < 3; i++)
+          //       Tab(
+          //           icon: Text(range[i],
+          //               style: TextStyle(
+          //                   color: _currentRange == i
+          //                       ? Color(0xffFDDB3A)
+          //                       : Color(0xFF41444B))))
+          //   ],
+          //   onTap: (index) {
+          //     _currentRange = index;
+          //     setState(() {});
+          //   },
+          // ),
           SizedBox(
             height: 10,
           ),
@@ -198,10 +214,14 @@ class _SettingPageState extends State<AnalyticsPage>
                                 _arrIncome[i] = _amountIncome;
                                 _arrOutgo[i] = _amountOutgo;
 
-                                return Text("Income: " +
-                                    _amountIncome.toString() +
-                                    " Outgo: " +
-                                    _amountOutgo.toString());
+                                return Container(
+                                  width: 0,
+                                  height: 0,
+                                );
+                                // Text("Income: " +
+                                //     _amountIncome.toString() +
+                                //     " Outgo: " +
+                                //     _amountOutgo.toString());
                               }
                             }),
                       BarChart(BarChartData(barGroups: [
@@ -246,6 +266,70 @@ class _SettingPageState extends State<AnalyticsPage>
             },
           ),
         ],
+      ),
+    );
+  }
+
+  _buildPieChart() {
+    return AspectRatio(
+      aspectRatio: 1,
+      child: Card(
+        color: Color(0xff52575D),
+        child: Column(
+          children: <Widget>[
+            const SizedBox(
+              height: 18,
+            ),
+            Expanded(
+              child: AspectRatio(
+                aspectRatio: 1,
+                child: PieChart(
+                  PieChartData(
+                      pieTouchData:
+                          PieTouchData(touchCallback: (pieTouchResponse) {
+                        setState(() {
+                          if (pieTouchResponse.touchInput is FlLongPressEnd ||
+                              pieTouchResponse.touchInput is FlPanEnd) {
+                            touchedIndex = -1;
+                          } else {
+                            touchedIndex = pieTouchResponse.touchedSectionIndex;
+                          }
+                        });
+                      }),
+                      borderData: FlBorderData(
+                        show: false,
+                      ),
+                      sectionsSpace: 0,
+                      centerSpaceRadius: 40,
+                      sections: showingSections()),
+                ),
+              ),
+            ),
+            Card(
+              color: Color(0xffF6F4E6),
+              margin: EdgeInsets.only(left: 15,right: 15,top: 15, bottom: 10),
+              child: Container(
+                margin: EdgeInsets.symmetric(horizontal: 15),
+                child: Column(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    for (int i = 0; i < 6; i++)
+                      Indicator(
+                        color: activityColors[i],
+                        text: activityList[i],
+                        isSquare: false,
+                      ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(
+              width: 28,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -312,45 +396,7 @@ class _SettingPageState extends State<AnalyticsPage>
                   // initiallyExpanded: true,
                   title: Text("Time boxing pie chart"),
                   children: [
-                    Text("PieChart is below"),
-                    Center(
-                      heightFactor: 10,
-                      child: ListTile(
-                        title: PieChart(PieChartData(
-                            startDegreeOffset: 180,
-                            sectionsSpace: 1,
-                            centerSpaceRadius: 0,
-                            // centerSpaceColor: Colors.white,
-                            borderData: FlBorderData(
-                              show: false,
-                            ),
-                            sections: [
-                              PieChartSectionData(
-                                title: '30%',
-                                value: 30,
-                                radius: 80,
-                                color: Colors.redAccent.withOpacity(0.7),
-                                titleStyle: TextStyle(color: Colors.black12),
-                                titlePositionPercentageOffset: 0.55,
-                              ),
-                              PieChartSectionData(
-                                  title: '20%',
-                                  radius: 80,
-                                  value: 20,
-                                  color: Colors.blueAccent),
-                              PieChartSectionData(
-                                  title: '10%',
-                                  radius: 80,
-                                  value: 10,
-                                  color: Colors.greenAccent),
-                              PieChartSectionData(
-                                  title: '40%',
-                                  radius: 80,
-                                  value: 40,
-                                  color: Colors.yellowAccent),
-                            ])),
-                      ),
-                    )
+                    _buildPieChart(),
                   ],
                 ),
               ),
@@ -390,5 +436,23 @@ class _SettingPageState extends State<AnalyticsPage>
         ),
       ),
     );
+  }
+
+  List<PieChartSectionData> showingSections() {
+    return List.generate(6, (i) {
+      final isTouched = i == touchedIndex;
+      final double fontSize = isTouched ? 25 : 16;
+      final double radius = isTouched ? 60 : 50;
+      return PieChartSectionData(
+            color: activityColors[i],
+            value: (i+1)*10.0,
+            title: '$i',
+            radius: radius,
+            titleStyle: TextStyle(
+                fontSize: fontSize,
+                fontWeight: FontWeight.bold,
+                color: Color(0xff52575D)),
+          );
+    });
   }
 }
