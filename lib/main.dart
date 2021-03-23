@@ -18,6 +18,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 // import 'package:project_1/widget/logged_in_widget.dart';
 import 'package:project_1/login.dart';
+// import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 // void main() => runApp(MaterialApp(
 //       home: SplashScreen(),

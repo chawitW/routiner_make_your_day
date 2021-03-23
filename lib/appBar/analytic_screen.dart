@@ -31,7 +31,13 @@ class _SettingPageState extends State<AnalyticsPage>
     Icons.card_giftcard_rounded,
   ];
   final user = FirebaseAuth.instance.currentUser;
-
+  List listColour = [
+    Color(0xffFA7F72),
+    Color(0xff7FDBDA),
+    Color(0xff8675A9),
+    Color(0xffADE498),
+    Color(0xffF6F4E6),
+  ];
   List listMatrix = [
     "Urgent and important",
     "Not urgent and important",
@@ -84,7 +90,7 @@ class _SettingPageState extends State<AnalyticsPage>
                       snapshots.data.docs[index];
                   return Card(
                     color: Color(0xffF6F4E6),
-                    margin: EdgeInsets.only(left: 10, right: 10, top: 4),
+                    margin: EdgeInsets.only(left: 10, right: 10, top: 2),
                     child: ExpansionTile(
                       initiallyExpanded: true,
                       title: Text(documentSnapshot["groupTag"],
@@ -109,7 +115,13 @@ class _SettingPageState extends State<AnalyticsPage>
                                   itemBuilder: (context, index) {
                                     DocumentSnapshot documentSnapshot =
                                         snapshots.data.docs[index];
-                                    return Text(documentSnapshot["todoTitle"]);
+                                    return Card(
+                                        color: listColour[int.parse(
+                                                documentSnapshot[
+                                                    "todoPriority_index"]) -
+                                            1],
+                                        child: Text(
+                                            documentSnapshot["todoTitle"]));
                                   },
                                 ),
                               );
@@ -144,8 +156,34 @@ class _SettingPageState extends State<AnalyticsPage>
   double _amountIncome = 0.0;
   double _amountOutgo = 0.0;
 
-  List<double> _arrIncome = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
-  List<double> _arrOutgo = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
+  List<double> _arrIncome = [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+  ];
+  List<double> _arrOutgo = [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+  ];
 
   Widget _buildFinancialGraph() {
     return Container(
@@ -182,8 +220,6 @@ class _SettingPageState extends State<AnalyticsPage>
                   .collection("statementDate")
                   .snapshots(),
               builder: (context, snapshots) {
-                // print(snapshots.data.docs[0]["statementList"]);
-                // List amount = [];
                 if (!snapshots.hasData) {
                   return CircularProgressIndicator();
                 } else {
@@ -207,16 +243,16 @@ class _SettingPageState extends State<AnalyticsPage>
                               } else {
                                 _amountIncome = 0.0;
                                 _amountOutgo = 0.0;
-                                for (int i = 0;
-                                    i < snapshots.data.docs.length;
-                                    i++) {
-                                  if (snapshots.data.docs[i]["ledgerType"] ==
+                                for (int j = 0;
+                                    j < snapshots.data.docs.length;
+                                    j++) {
+                                  if (snapshots.data.docs[j]["ledgerType"] ==
                                       "Income") {
                                     _amountIncome += double.parse(
-                                        snapshots.data.docs[i]["ledgerAmount"]);
+                                        snapshots.data.docs[j]["ledgerAmount"]);
                                   } else {
                                     _amountOutgo += double.parse(
-                                        snapshots.data.docs[i]["ledgerAmount"]);
+                                        snapshots.data.docs[j]["ledgerAmount"]);
                                   }
                                 }
                                 _arrIncome[i] = _amountIncome;
@@ -226,28 +262,18 @@ class _SettingPageState extends State<AnalyticsPage>
                                   width: 0,
                                   height: 0,
                                 );
-                                // Text("Income: " +
-                                //     _amountIncome.toString() +
-                                //     " Outgo: " +
-                                //     _amountOutgo.toString());
                               }
                             }),
                       BarChart(BarChartData(barGroups: [
-                        for (int j = 0; j < snapshots.data.docs.length; j++)
-                          BarChartGroupData(x: j + 1, barRods: [
+                        for (int k = 0; k < snapshots.data.docs.length; k++)
+                          BarChartGroupData(x: 15 + k, barRods: [
                             BarChartRodData(
-                                y: _arrIncome[j],
-                                colors: [
-                                  Colors.greenAccent
-                                  // Colors.greenAccent
-                                ],
+                                y: _arrIncome[k],
+                                colors: [Colors.greenAccent],
                                 width: 3),
                             BarChartRodData(
-                                y: _arrOutgo[j],
-                                colors: [
-                                  // Colors.redAccent
-                                  Colors.redAccent
-                                ],
+                                y: _arrOutgo[k],
+                                colors: [Colors.redAccent],
                                 width: 3)
                           ])
                       ])),
@@ -268,9 +294,10 @@ class _SettingPageState extends State<AnalyticsPage>
                             : Color(0xFF41444B))),
             ],
             onTap: (index) {
-              _currentJar = index;
               // _amountIncome = (index + 1) * 2.0;
-              setState(() {});
+              setState(() {
+                _currentJar = index;
+              });
             },
           ),
         ],
@@ -337,7 +364,7 @@ class _SettingPageState extends State<AnalyticsPage>
         if (!snapshots.hasData) {
           return CircularProgressIndicator();
         } else {
-          print(snapshots.data.docs.length);
+          // print(snapshots.data.docs.length);
           for (int j = 0; j < snapshots.data.docs.length; j++) {
             _amountTime[
                 int.parse(snapshots.data.docs[j]["plannerActivityNumber"]) -
@@ -394,7 +421,6 @@ class _SettingPageState extends State<AnalyticsPage>
 
   @override
   void initState() {
-    _amountTime = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
     super.initState();
     // TODO: implement initState
 
@@ -443,6 +469,9 @@ class _SettingPageState extends State<AnalyticsPage>
               Card(
                 color: Color(0xffF6F4E6),
                 child: ExpansionTile(
+                  onExpansionChanged: (isExpanded) {
+                    setState(() {});
+                  },
                   // initiallyExpanded: true,
                   title: Text("Financial graph"),
                   children: [
@@ -523,7 +552,7 @@ class _SettingPageState extends State<AnalyticsPage>
     var _sumTime = 0.0;
     for (int i = 0; i < 6; i++) {
       _sumTime += _amountTime[i];
-      print(_sumTime);
+      // print(_sumTime);
     }
     return List.generate(6, (i) {
       final isTouched = i == touchedIndex;

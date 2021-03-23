@@ -671,6 +671,7 @@ class _SixJarsRouteState extends State<SixJarsRoute>
                       Container(
                         margin: EdgeInsets.symmetric(vertical: 5),
                         child: TextField(
+                          keyboardType: TextInputType.number,
                           decoration: InputDecoration(
                             border: OutlineInputBorder(
                                 borderSide: BorderSide(color: Colors.teal)),

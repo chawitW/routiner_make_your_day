@@ -179,6 +179,201 @@ class _PlannerState extends State<PlannerPage> with TickerProviderStateMixin {
     super.dispose();
   }
 
+  _showEditDialog(_actNum, _start, _end, _details) {
+    activity = activityList[int.parse(_actNum) - 1];
+    input = _details;
+    _timeStart = _start;
+    _timeEnd = _end;
+    priorityController = TabController(vsync: this, length: 4, initialIndex: 0);
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return StatefulBuilder(builder: (context, setState) {
+            return AlertDialog(
+              backgroundColor: Color(0xffF6F4E6),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8)),
+              title: Text(input),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      margin: EdgeInsets.only(top: 10, bottom: 10),
+                      height: 50,
+                      decoration: ShapeDecoration(
+                        shape: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.teal)),
+                      ),
+                      child: Container(
+                        margin: EdgeInsets.only(left: 10),
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton<String>(
+                              isExpanded: true,
+                              value: activity,
+                              isDense: true,
+                              hint: Text("HINT"),
+                              onChanged: (newValue) {
+                                setState(() {
+                                  activity = newValue;
+                                });
+                                // print(activity);
+                              },
+                              items: activityList.map((valueItem) {
+                                return DropdownMenuItem<String>(
+                                  value: valueItem,
+                                  child: Text(valueItem),
+                                );
+                              }).toList()),
+                        ),
+                      ),
+                    ),
+                    Container(
+                      // margin: EdgeInsets.only(top: 10),
+                      decoration: ShapeDecoration(
+                        shape: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.teal)),
+                      ),
+                      child: ListTile(
+                        dense: true,
+                        title: Text(_timeStart, style: TextStyle(fontSize: 16)),
+                        onTap: () {
+                          isTimeStart = true;
+                          _pickTime(isTimeStart).then((value) {
+                            if (value == null) setState(() {});
+                          });
+                        },
+                      ),
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(top: 10),
+                      decoration: ShapeDecoration(
+                        shape: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.teal)),
+                      ),
+                      child: ListTile(
+                        dense: true,
+                        title: Text(_timeEnd, style: TextStyle(fontSize: 16)),
+                        onTap: () {
+                          isTimeStart = false;
+                          _pickTime(isTimeStart).then((value) {
+                            if (value == null) setState(() {});
+                          });
+                        },
+                      ),
+                    ),
+                    ListTile(
+                      // dense: true,
+
+                      title: Text("Also add this"),
+                      subtitle: Text("into To do list"),
+                      trailing: Switch(
+                        value: addToTodo,
+                        onChanged: (state) {
+                          setState(() {
+                            addToTodo = !addToTodo;
+                          });
+                        },
+                      ),
+                    ),
+                    if (addToTodo)
+                      Column(
+                        children: [
+                          //additional required To do form. //priority and group
+                          Container(
+                            decoration: ShapeDecoration(
+                              shape: OutlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.teal)),
+                            ),
+                            margin: EdgeInsets.only(top: 10, bottom: 10),
+                            child: Container(
+                              margin: EdgeInsets.all(15),
+                              child: Column(
+                                children: [
+                                  Text(
+                                    priority,
+                                    style: TextStyle(fontSize: 14),
+                                  ),
+                                  TabBar(
+                                    unselectedLabelColor: Color(0xFF41444B),
+                                    indicatorColor: Color(0xffFDDB3A),
+                                    controller: priorityController,
+                                    tabs: <Tab>[
+                                      for (int i = 0; i < 4; i++)
+                                        Tab(
+                                            icon: Icon(
+                                          Icons.circle,
+                                          color: listColour[i],
+                                        )),
+                                    ],
+                                    onTap: (index) {
+                                      priority = listMatrix[index];
+                                      priority_index = index + 1;
+                                      setState(() {});
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          TextField(
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(
+                                  borderSide:
+                                      new BorderSide(color: Colors.teal)),
+                              hintText: 'Enter a group name.',
+                              // helperText:
+                              //     'Keep it short, this is just a demo.',
+                              labelText: 'Group',
+                            ),
+                            onChanged: (String value) {
+                              groupTag = value;
+                            },
+                          ),
+                        ],
+                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        FlatButton(
+                            onPressed: () {
+                              for (int i = 0; i < activityList.length; i++) {
+                                if (activity == activityList[i]) {
+                                  activity_index = i + 1;
+                                }
+                              }
+
+                              createPlanners();
+                              if (addToTodo) createTodos();
+                              Navigator.of(context).pop();
+                              setState(() {});
+                            },
+                            child: Container(
+                                  alignment: Alignment.center,
+                                  width: 100,
+                                  height: 40,
+                                  decoration: ShapeDecoration(
+                                    color: Color(0xffFDDB3A),
+                                    shape: OutlineInputBorder(
+                                        borderSide:
+                                            BorderSide(color: Colors.grey)),
+                                  ),
+                                  margin: EdgeInsets.only(top: 10),
+                                  child: Text(
+                                    "Save change",
+                                    style: TextStyle(color: Colors.black87),
+                                  ),
+                                )),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            );
+          });
+        });
+  }
+
   _showFormDialog() {
     priorityController = TabController(vsync: this, length: 4, initialIndex: 0);
     showDialog(
@@ -502,16 +697,27 @@ class _PlannerState extends State<PlannerPage> with TickerProviderStateMixin {
                                 child: Center(
                                   heightFactor: 0.6 * _diffTime,
                                   child: ListTile(
+                                      onTap: () {
+                                        _showEditDialog(
+                                            documentSnapshot[
+                                                "plannerActivityNumber"],
+                                            documentSnapshot[
+                                                "plannerTimeStart"],
+                                            documentSnapshot["plannerTimeEnd"],
+                                            documentSnapshot["plannerDetails"]);
+                                      },
                                       title: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                          documentSnapshot["plannerTimeStart"]),
-                                      Text(documentSnapshot["plannerDetails"]),
-                                      Text(documentSnapshot["plannerTimeEnd"]),
-                                    ],
-                                  )),
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(documentSnapshot[
+                                              "plannerTimeStart"]),
+                                          Text(documentSnapshot[
+                                              "plannerDetails"]),
+                                          Text(documentSnapshot[
+                                              "plannerTimeEnd"]),
+                                        ],
+                                      )),
                                 ));
                           });
                     }

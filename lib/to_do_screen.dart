@@ -514,6 +514,241 @@ class _ToDoRouteState extends State<ToDoRoute> with TickerProviderStateMixin {
       });
   }
 
+  _showEditDialog(_priority_index, _details, _grouptag) {
+    priority = listMatrix[_priority_index];
+    priority_index = _priority_index+1;
+    priorityController =
+        TabController(vsync: this, length: 4, initialIndex: _priority_index);
+    addToPlanner = false;
+    _timeStart = null;
+    _timeEnd = null;
+    groupTag = _grouptag;
+    input = _details;
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return StatefulBuilder(
+            builder: (context, setState) {
+              return AlertDialog(
+                backgroundColor: Color(0xffF6F4E6),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8)),
+                title: Center(child: Text(input)),
+                content: SingleChildScrollView(
+                  child: Container(
+                    // margin: EdgeInsets.all(0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          padding: EdgeInsets.only(top: 10),
+                          child: Text(groupTag)
+                        ),
+                        Container(
+                          decoration: ShapeDecoration(
+                            shape: OutlineInputBorder(
+                                borderSide: BorderSide(color: Colors.teal)),
+                          ),
+                          margin: EdgeInsets.only(top: 10, bottom: 10),
+                          child: Container(
+                            margin: EdgeInsets.all(15),
+                            child: Column(
+                              children: [
+                                Text(
+                                  priority,
+                                  style: TextStyle(fontSize: 14),
+                                ),
+                                TabBar(
+                                  unselectedLabelColor: Color(0xFF41444B),
+                                  indicatorColor: Color(0xffFDDB3A),
+                                  controller: priorityController,
+                                  tabs: <Tab>[
+                                    for (int i = 0; i < 4; i++)
+                                      Tab(
+                                          icon: Icon(
+                                        Icons.circle,
+                                        color: listColour[i],
+                                      )),
+                                  ],
+                                  onTap: (index) {
+                                    priority = listMatrix[index];
+                                    priority_index = index + 1;
+                                    setState(() {});
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        
+                        ListTile(
+                          // dense: true,
+
+                          title: Text("Add this task"),
+                          subtitle: Text("to Planner"),
+                          trailing: Switch(
+                            value: addToPlanner,
+                            onChanged: (state) {
+                              setState(() {
+                                addToPlanner = !addToPlanner;
+                              });
+                            },
+                          ),
+                        ),
+                        if (addToPlanner)
+                          Column(
+                            children: [
+                              //additional required Planner form. //activity and time
+                              Container(
+                                margin: EdgeInsets.only(top: 10, bottom: 10),
+                                height: 50,
+                                decoration: ShapeDecoration(
+                                  shape: OutlineInputBorder(
+                                      borderSide:
+                                          BorderSide(color: Colors.grey)),
+                                ),
+                                child: Container(
+                                  margin: EdgeInsets.only(left: 10),
+                                  child: DropdownButtonHideUnderline(
+                                    child: DropdownButton(
+                                        isExpanded: true,
+                                        value: activity,
+                                        isDense: true,
+                                        onChanged: (newValue) {
+                                          setState(() {
+                                            activity = newValue;
+                                          });
+                                        },
+                                        items: activityList.map((valueItem) {
+                                          return DropdownMenuItem<String>(
+                                            value: valueItem,
+                                            child: Text(valueItem),
+                                          );
+                                        }).toList()),
+                                  ),
+                                ),
+                              ),
+                              Container(
+                                decoration: ShapeDecoration(
+                                  shape: OutlineInputBorder(
+                                      borderSide:
+                                          BorderSide(color: Colors.grey)),
+                                ),
+                                child: ListTile(
+                                  dense: true,
+                                  title: _timeStart == null ?? _timeStart == ""
+                                      ? Text(
+                                          "Select start time.",
+                                          style: TextStyle(fontSize: 16),
+                                        )
+                                      : Text(_timeStart,
+                                          style: TextStyle(fontSize: 16)),
+                                  onTap: () {
+                                    isTimeStart = true;
+                                    _pickTime(isTimeStart).then((value) {
+                                      if (value == null) setState(() {});
+                                    });
+                                  },
+                                ),
+                              ),
+
+                              Container(
+                                margin: EdgeInsets.only(top: 10),
+                                decoration: ShapeDecoration(
+                                  shape: OutlineInputBorder(
+                                      borderSide:
+                                          BorderSide(color: Colors.teal)),
+                                ),
+                                child: ListTile(
+                                  dense: true,
+                                  title: _timeEnd == null ?? _timeEnd == ""
+                                      ? Text("Select end time.",
+                                          style: TextStyle(fontSize: 16))
+                                      : Text(_timeEnd,
+                                          style: TextStyle(fontSize: 16)),
+                                  onTap: () {
+                                    isTimeStart = false;
+                                    _pickTime(isTimeStart).then((value) {
+                                      if (value == null) setState(() {});
+                                    });
+                                  },
+                                ),
+                              ),
+                              Container(
+                                margin: EdgeInsets.only(top: 10),
+                                decoration: ShapeDecoration(
+                                  shape: OutlineInputBorder(
+                                      borderSide:
+                                          BorderSide(color: Colors.teal)),
+                                ),
+                                child: ListTile(
+                                  dense: true,
+                                  title: _date == null
+                                      ? Text(
+                                          "Date: " +
+                                              DateFormat.yMMMMd()
+                                                  .format(DateTime.now()),
+                                          style: TextStyle(fontSize: 16))
+                                      : Text(
+                                          "Date: " +
+                                              DateFormat.yMMMd().format(_date),
+                                          style: TextStyle(fontSize: 16)),
+                                  onTap: () {
+                                    _pickDate().then((value) {
+                                      if (value == null) setState(() {});
+                                    });
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: <Widget>[
+                            FlatButton(
+                                onPressed: () {
+                                  if (addToPlanner) {
+                                    for (int i = 0;
+                                        i < activityList.length;
+                                        i++) {
+                                      if (activity == activityList[i]) {
+                                        activity_index = i + 1;
+                                      }
+                                    }
+                                    _addToPlanner();
+                                  }
+
+                                  createTodos();
+                                  Navigator.of(context).pop();
+                                },
+                                child: Container(
+                                  alignment: Alignment.center,
+                                  width: 100,
+                                  height: 40,
+                                  decoration: ShapeDecoration(
+                                    color: Color(0xffFDDB3A),
+                                    shape: OutlineInputBorder(
+                                        borderSide:
+                                            BorderSide(color: Colors.grey)),
+                                  ),
+                                  margin: EdgeInsets.only(top: 10),
+                                  child: Text(
+                                    "Save change",
+                                    style: TextStyle(color: Colors.black87),
+                                  ),
+                                )),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          );
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
     // Padding(padding: const EdgeInsets.all(20),);
@@ -631,6 +866,16 @@ class _ToDoRouteState extends State<ToDoRoute> with TickerProviderStateMixin {
                                                                     .circular(
                                                                         8)),
                                                     child: ListTile(
+                                                      onTap: () {
+                                                        _showEditDialog(
+                                                            int.parse(documentSnapshot[
+                                                                    "todoPriority_index"]) -
+                                                                1,
+                                                            documentSnapshot[
+                                                                "todoTitle"],
+                                                            documentSnapshot[
+                                                                "todoGroupTag"]);
+                                                      },
                                                       dense: true,
                                                       title: Text(
                                                           documentSnapshot[
