@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:intl/intl.dart';
 
 void main() => runApp(PlannerPage());
 
@@ -25,6 +26,7 @@ class _PlannerState extends State<PlannerPage> with TickerProviderStateMixin {
   CalendarController _controller;
   TabController dateController;
   bool addToTodo = false;
+  bool addToAnotherDay = false;
   bool isTimeStart = false;
   String input = "";
 
@@ -65,13 +67,15 @@ class _PlannerState extends State<PlannerPage> with TickerProviderStateMixin {
     "Crisis",
     "Admin",
   ];
+  String dateForm;
+  DateTime _date;
 
   createPlanners() {
     DocumentReference documentReference = FirebaseFirestore.instance
         .collection(user.email)
         .doc(user.email)
         .collection("Planner")
-        .doc(_controller.selectedDay.toString());
+        .doc(addToAnotherDay?dateForm: _controller.selectedDay.toString());
 
     documentReference.set({
       "selectedDate": _controller.selectedDay.toString(),
@@ -85,6 +89,36 @@ class _PlannerState extends State<PlannerPage> with TickerProviderStateMixin {
     };
 
     documentReference.collection("plannerList").doc(input).set(planners);
+  }
+
+  _pickDate() async {
+    DateTime date = await showDatePicker(
+        context: context,
+        initialDate: DateTime.now(),
+        firstDate: DateTime(2000),
+        lastDate: DateTime(2222),
+        builder: (BuildContext context, Widget child) {
+          return StatefulBuilder(
+            builder: (context, setState) {
+              return Theme(
+                data: ThemeData(),
+                child: child,
+              );
+            },
+          );
+        });
+    if (date != null)
+      setState(() {
+        _date = date;
+        String month = _date.month.toString();
+        if (_date.month < 10) month = "0" + month;
+        dateForm = _date.year.toString() +
+            "-" +
+            month +
+            "-" +
+            _date.day.toString() +
+            " 12:00:00.000Z";
+      });
   }
 
   _pickTime(isTimeStart) async {
@@ -180,6 +214,8 @@ class _PlannerState extends State<PlannerPage> with TickerProviderStateMixin {
   }
 
   _showEditDialog(_actNum, _start, _end, _details) {
+    addToAnotherDay = false;
+    addToTodo = false;
     activity = activityList[int.parse(_actNum) - 1];
     input = _details;
     _timeStart = _start;
@@ -276,6 +312,44 @@ class _PlannerState extends State<PlannerPage> with TickerProviderStateMixin {
                         },
                       ),
                     ),
+                    ListTile(
+                      // dense: true,
+
+                      title: Text("Also add this"),
+                      subtitle: Text("to another day"),
+                      trailing: Switch(
+                        value: addToAnotherDay,
+                        onChanged: (state) {
+                          setState(() {
+                            addToAnotherDay = !addToAnotherDay;
+                          });
+                        },
+                      ),
+                    ),
+                    if (addToAnotherDay)
+                      Container(
+                        decoration: ShapeDecoration(
+                          shape: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.teal)),
+                        ),
+                        child: ListTile(
+                          dense: true,
+                          title: _date == null
+                              ? Text(
+                                  "Date: " +
+                                      DateFormat.yMMMMd()
+                                          .format(DateTime.now()),
+                                  style: TextStyle(fontSize: 16))
+                              : Text(
+                                  "Date: " + DateFormat.yMMMd().format(_date),
+                                  style: TextStyle(fontSize: 16)),
+                          onTap: () {
+                            _pickDate().then((value) {
+                              if (value == null) setState(() {});
+                            });
+                          },
+                        ),
+                      ),
                     if (addToTodo)
                       Column(
                         children: [
@@ -316,6 +390,7 @@ class _PlannerState extends State<PlannerPage> with TickerProviderStateMixin {
                               ),
                             ),
                           ),
+
                           TextField(
                             decoration: InputDecoration(
                               border: OutlineInputBorder(
@@ -335,35 +410,66 @@ class _PlannerState extends State<PlannerPage> with TickerProviderStateMixin {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
-                        FlatButton(
-                            onPressed: () {
-                              for (int i = 0; i < activityList.length; i++) {
-                                if (activity == activityList[i]) {
-                                  activity_index = i + 1;
+                        if (!addToAnotherDay)
+                          FlatButton(
+                              onPressed: () {
+                                for (int i = 0; i < activityList.length; i++) {
+                                  if (activity == activityList[i]) {
+                                    activity_index = i + 1;
+                                  }
                                 }
-                              }
 
-                              createPlanners();
-                              if (addToTodo) createTodos();
-                              Navigator.of(context).pop();
-                              setState(() {});
-                            },
-                            child: Container(
-                                  alignment: Alignment.center,
-                                  width: 100,
-                                  height: 40,
-                                  decoration: ShapeDecoration(
-                                    color: Color(0xffFDDB3A),
-                                    shape: OutlineInputBorder(
-                                        borderSide:
-                                            BorderSide(color: Colors.grey)),
-                                  ),
-                                  margin: EdgeInsets.only(top: 10),
-                                  child: Text(
-                                    "Save change",
-                                    style: TextStyle(color: Colors.black87),
-                                  ),
-                                )),
+                                createPlanners();
+                                if (addToTodo) createTodos();
+                                Navigator.of(context).pop();
+                                setState(() {});
+                              },
+                              child: Container(
+                                alignment: Alignment.center,
+                                width: 100,
+                                height: 40,
+                                decoration: ShapeDecoration(
+                                  color: Color(0xffFDDB3A),
+                                  shape: OutlineInputBorder(
+                                      borderSide:
+                                          BorderSide(color: Colors.grey)),
+                                ),
+                                margin: EdgeInsets.only(top: 10),
+                                child: Text(
+                                  "Save change",
+                                  style: TextStyle(color: Colors.black87),
+                                ),
+                              )),
+                        if (addToAnotherDay)
+                          FlatButton(
+                              onPressed: () {
+                                for (int i = 0; i < activityList.length; i++) {
+                                  if (activity == activityList[i]) {
+                                    activity_index = i + 1;
+                                  }
+                                }
+
+                                createPlanners();
+                                if (addToTodo) createTodos();
+                                Navigator.of(context).pop();
+                                setState(() {});
+                              },
+                              child: Container(
+                                alignment: Alignment.center,
+                                width: 100,
+                                height: 40,
+                                decoration: ShapeDecoration(
+                                  color: Color(0xffFDDB3A),
+                                  shape: OutlineInputBorder(
+                                      borderSide:
+                                          BorderSide(color: Colors.grey)),
+                                ),
+                                margin: EdgeInsets.only(top: 10),
+                                child: Text(
+                                  "Add",
+                                  style: TextStyle(color: Colors.black87),
+                                ),
+                              ))
                       ],
                     ),
                   ],

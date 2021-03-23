@@ -376,7 +376,7 @@ class _SettingPageState extends State<AnalyticsPage>
             return Column(
               children: [
                 SizedBox(
-                  height: 25,
+                  height: 105,
                 ),
                 PieChart(
                   PieChartData(
@@ -401,7 +401,7 @@ class _SettingPageState extends State<AnalyticsPage>
               ],
             );
           }
-          return Text("");
+          return Container(width: 0,height: 0,);
         }
       },
     );
