@@ -32,7 +32,7 @@ class _SixJarsRouteState extends State<SixJarsRoute>
 
   String details = "";
 
-  String timeForm;
+  
   // bool _validate = false;
   final _text = TextEditingController();
   bool incomeDialog;
@@ -56,6 +56,7 @@ class _SixJarsRouteState extends State<SixJarsRoute>
   List<int> _currentAmount = [0, 0, 0, 0, 0, 0];
   // var stmType_index = 0;
   String amount = "0.00";
+  String timeForm;
   String stmType = "";
   bool autoJar = true;
 

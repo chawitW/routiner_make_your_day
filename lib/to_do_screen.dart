@@ -23,6 +23,16 @@ class _ToDoRouteState extends State<ToDoRoute> with TickerProviderStateMixin {
   final user = FirebaseAuth.instance.currentUser;
   TabController priorityController;
   String priority;
+  TabController jarController;
+  int _currentJar = 0;
+  List jarIcon = [
+    Icons.account_balance_wallet_rounded,
+    Icons.school_rounded,
+    Icons.account_balance_rounded,
+    Icons.trending_up_rounded,
+    Icons.card_travel_rounded,
+    Icons.card_giftcard_rounded,
+  ];
   List listMatrix = [
     "Urgent and important",
     "Not urgent and important",
@@ -45,6 +55,14 @@ class _ToDoRouteState extends State<ToDoRoute> with TickerProviderStateMixin {
     "Crisis",
     "Admin",
   ];
+  List jarName = [
+    "Need jar",
+    "Education jar",
+    "Long-term saving jar",
+    "Investment jar",
+    "Self reward jar",
+    "Donation jar",
+  ];
   bool expand = false;
   String _timeStart, _timeEnd;
   bool isTimeStart = false;
@@ -52,6 +70,9 @@ class _ToDoRouteState extends State<ToDoRoute> with TickerProviderStateMixin {
   String dateForm;
   DateTime _date;
   int activity_index;
+  bool isShopGoal = false;
+  String amount = "0.00";
+  String timeForm;
 
   @override
   void initState() {
@@ -134,6 +155,7 @@ class _ToDoRouteState extends State<ToDoRoute> with TickerProviderStateMixin {
 
     documentReference.set({
       "groupTag": groupTag,
+      "isShopGoal": isShopGoal,
     });
 
     documentReference
@@ -514,9 +536,240 @@ class _ToDoRouteState extends State<ToDoRoute> with TickerProviderStateMixin {
       });
   }
 
+  _showEditGroup(snapshots, index, documentSnapshot) {
+    return Container(
+        margin: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+        // alignment: Alignment.centerRight,
+        child: Center(
+          heightFactor: 0.5,
+          child: FlatButton(
+              onPressed: () {
+                showDialog(
+                    context: context,
+                    builder: (BuildContext builder) {
+                      return StatefulBuilder(
+                        builder: (context, setState) {
+                          return AlertDialog(
+                              title: Center(
+                                child: Text(
+                                    snapshots.data.docs[index]["groupTag"]),
+                              ),
+                              content: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Checkbox(
+                                          value: isShopGoal,
+                                          onChanged: (isCheck) {
+                                            FirebaseFirestore.instance
+                                                .collection(user.email)
+                                                .doc(user.email)
+                                                .collection("TodoList")
+                                                .doc(snapshots.data.docs[index]
+                                                    ["groupTag"])
+                                                .set({
+                                              "groupTag": snapshots
+                                                  .data.docs[index]["groupTag"],
+                                              "isShopGoal": isCheck,
+                                            });
+                                            setState(() {
+                                              isShopGoal = isCheck;
+                                            });
+                                          }),
+                                      Flexible(
+                                          child: Text(
+                                              "Make this group as a shopping goal"))
+                                    ],
+                                  ),
+                                  SizedBox(
+                                    height: 10,
+                                  ),
+                                  FlatButton(
+                                    color: Colors.redAccent,
+                                    onPressed: () {
+                                      _showConfirmDialog(documentSnapshot);
+                                      // print("object");
+                                    },
+                                    child: Text("Remove this group"),
+                                  ),
+                                ],
+                              ));
+                          ;
+                        },
+                      );
+                    });
+              },
+              child: Text("Edit group")),
+        ));
+  }
+
+  _createStatement(details) {
+    DocumentReference documentReference = FirebaseFirestore.instance
+        .collection(user.email)
+        .doc(user.email)
+        .collection("Ledger")
+        .doc(jarName[_currentJar]);
+
+    documentReference.collection("statementDate").doc(dateForm).set({
+      "date": dateForm,
+    });
+
+    Map<String, String> statement = {
+      "ledgerDetails": details,
+      "ledgerDate": dateForm,
+      "ledgerTime": timeForm,
+      "ledgerType": "Outgo",
+      "ledgerAmount": amount,
+    };
+    documentReference
+        .collection("statementDate")
+        .doc(dateForm)
+        .collection("statementList")
+        .doc()
+        .set(statement);
+  }
+
+// List<int> _currentAmount = [0, 0, 0, 0, 0, 0];
+  _updateAmount(documentSnapshot) {
+    DocumentReference documentReference = FirebaseFirestore.instance
+        .collection(user.email)
+        .doc(user.email)
+        .collection("Ledger")
+        .doc(jarName[_currentJar]);
+
+    documentReference.set({
+      "jarAmount":
+          (200 - (int.parse(amount)))
+              .toString(),
+      "jarNumber": _currentJar.toString(),
+    });
+  }
+
+  _showAddStatement(documentSnapshot) {
+    jarController = TabController(vsync: this, length: 6, initialIndex: 0);
+    _currentJar = 0;
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return StatefulBuilder(builder: (context, setState) {
+            return AlertDialog(
+              backgroundColor: Color(0xffF6F4E6),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8)),
+              title: Center(child: Text(documentSnapshot["todoTitle"])),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Align(
+                      alignment: Alignment.center,
+                      child: Container(
+                        child: TabBar(
+                          labelPadding: EdgeInsets.only(left: 8),
+                          unselectedLabelColor: Color(0xFF41444B),
+                          indicatorColor: Color(0xffFDDB3A),
+                          controller: jarController,
+                          tabs: <Tab>[
+                            for (int i = 0; i < 6; i++)
+                              Tab(
+                                  icon: Align(
+                                alignment: Alignment.centerLeft,
+                                child: Icon(
+                                  jarIcon[i],
+                                  color: _currentJar == i
+                                      ? Color(0xffFDDB3A)
+                                      : Color(0xFF41444B),
+                                ),
+                              )),
+                          ],
+                          onTap: (index) {
+                            setState(() {
+                              _currentJar = index;
+                              // print(_currentJar);
+                            });
+                          },
+                        ),
+                      ),
+                    ),
+                    Container(
+                        margin: EdgeInsets.symmetric(vertical: 10),
+                        child: Center(
+                          child: Text(jarName[_currentJar]),
+                        )),
+                    Container(
+                      margin: EdgeInsets.symmetric(vertical: 5),
+                      child: TextField(
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.teal)),
+                          hintText: 'amount statement',
+                          labelText: 'Amount',
+                        ),
+                        onChanged: (String value) {
+                          amount = value;
+                        },
+                      ),
+                    ),
+                    Container(
+                      child: ListTile(
+                        title: _date == null
+                            ? Text("Date: " +
+                                DateFormat.yMMMMd().format(DateTime.now()))
+                            : Text("Date: " + DateFormat.yMMMd().format(_date)),
+                        onTap: () {
+                          _pickDate().then((value) {
+                            if (value == null) setState(() {});
+                          });
+                        },
+                      ),
+                    ),
+                    Container(
+                      margin: EdgeInsets.symmetric(vertical: 5),
+                      child: ListTile(
+                        title: timeForm == null ?? timeForm == ""
+                            ? Text("Time: " + _timeFormatter(_time))
+                            : Text("Time: " + timeForm),
+                        onTap: () {
+                          _pickTime(true).then((value) {
+                            if (value == null) setState(() {});
+                          });
+                        },
+                      ),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        FlatButton(
+                            onPressed: () {
+                              setState(() {
+                                Navigator.of(context).pop();
+                                // _updateAmount(incomeDialog, autoJar);
+                                _createStatement(documentSnapshot["todoTitle"]);
+                                // _completedTask(documentSnapshot);
+                              });
+                            },
+                            child: Container(
+                              child: Icon(
+                                Icons.add_circle_rounded,
+                                color: Color(0xffFDDB3A),
+                                size: 50,
+                              ),
+                            )),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            );
+          });
+        });
+  }
+
   _showEditDialog(_priority_index, _details, _grouptag) {
     priority = listMatrix[_priority_index];
-    priority_index = _priority_index+1;
+    priority_index = _priority_index + 1;
     priorityController =
         TabController(vsync: this, length: 4, initialIndex: _priority_index);
     addToPlanner = false;
@@ -541,9 +794,8 @@ class _ToDoRouteState extends State<ToDoRoute> with TickerProviderStateMixin {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Container(
-                          padding: EdgeInsets.only(top: 10),
-                          child: Text(groupTag)
-                        ),
+                            padding: EdgeInsets.only(top: 10),
+                            child: Text(groupTag)),
                         Container(
                           decoration: ShapeDecoration(
                             shape: OutlineInputBorder(
@@ -580,7 +832,6 @@ class _ToDoRouteState extends State<ToDoRoute> with TickerProviderStateMixin {
                             ),
                           ),
                         ),
-                        
                         ListTile(
                           // dense: true,
 
@@ -801,6 +1052,7 @@ class _ToDoRouteState extends State<ToDoRoute> with TickerProviderStateMixin {
                           List.generate(snapshots.data.docs.length, (index) {
                         DocumentSnapshot documentSnapshot =
                             snapshots.data.docs[index];
+                        // isShopGoal = snapshots.data.docs[index]["isShopGoal"];
                         return Container(
                           key: ValueKey(index),
                           child: Card(
@@ -839,14 +1091,38 @@ class _ToDoRouteState extends State<ToDoRoute> with TickerProviderStateMixin {
                                               DocumentSnapshot
                                                   documentSnapshot =
                                                   snapshots.data.docs[index];
+
                                               return Container(
                                                 child: Dismissible(
                                                   direction: DismissDirection
                                                       .startToEnd,
-                                                  key: ValueKey(index),
-                                                  onDismissed: (directoin) {
-                                                    _completedTask(
-                                                        documentSnapshot);
+                                                  // key: ValueKey(index),
+                                                  key: UniqueKey(),
+                                                  onDismissed: (direction) {
+                                                    setState(() {
+                                                      // isShopGoal = documentSnapshot_1["isShopGoal"];
+                                                      jarController =
+                                                          TabController(
+                                                              vsync: this,
+                                                              length: 6,
+                                                              initialIndex: 0);
+                                                    });
+
+                                                    print(isShopGoal);
+                                                    if (isShopGoal) {
+                                                      _showAddStatement(
+                                                              documentSnapshot)
+                                                          //   .then((value) {
+                                                          // if (value == null) {
+                                                          //   print("hello");
+                                                          //   setState(() {});
+                                                          // }
+                                                          // })
+                                                          ;
+                                                    }
+
+                                                    // _completedTask(
+                                                    //     documentSnapshot);
                                                   },
                                                   child: Card(
                                                     color: listColour[int.parse(
@@ -900,21 +1176,9 @@ class _ToDoRouteState extends State<ToDoRoute> with TickerProviderStateMixin {
                                     }
                                   },
                                 ),
-                                Container(
-                                    margin: EdgeInsets.symmetric(
-                                        vertical: 10, horizontal: 15),
-                                    // alignment: Alignment.centerRight,
-                                    child: Center(
-                                      heightFactor: 0.5,
-                                      child: FlatButton(
-                                          color: Colors.redAccent,
-                                          onPressed: () {
-                                            _showConfirmDialog(
-                                                documentSnapshot);
-                                            print("object");
-                                          },
-                                          child: Text("delete this group")),
-                                    ))
+                                if (snapshots.hasData)
+                                  _showEditGroup(
+                                      snapshots, index, documentSnapshot),
                               ],
                             ),
                           ),
