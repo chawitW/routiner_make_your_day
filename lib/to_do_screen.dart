@@ -630,8 +630,8 @@ class _ToDoRouteState extends State<ToDoRoute> with TickerProviderStateMixin {
         .set(statement);
   }
 
-// List<int> _currentAmount = [0, 0, 0, 0, 0, 0];
-  _updateAmount(documentSnapshot) {
+  List<int> _currentAmount = [0, 0, 0, 0, 0, 0];
+  _updateAmount(_currentJar) {
     DocumentReference documentReference = FirebaseFirestore.instance
         .collection(user.email)
         .doc(user.email)
@@ -640,8 +640,7 @@ class _ToDoRouteState extends State<ToDoRoute> with TickerProviderStateMixin {
 
     documentReference.set({
       "jarAmount":
-          (200 - (int.parse(amount)))
-              .toString(),
+          (_currentAmount[_currentJar] - (int.parse(amount))).toString(),
       "jarNumber": _currentJar.toString(),
     });
   }
@@ -649,6 +648,8 @@ class _ToDoRouteState extends State<ToDoRoute> with TickerProviderStateMixin {
   _showAddStatement(documentSnapshot) {
     jarController = TabController(vsync: this, length: 6, initialIndex: 0);
     _currentJar = 0;
+    // dateForm =
+    // timeForm =
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -662,6 +663,22 @@ class _ToDoRouteState extends State<ToDoRoute> with TickerProviderStateMixin {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    StreamBuilder(
+                        stream: FirebaseFirestore.instance
+                            .collection(user.email)
+                            .doc(user.email)
+                            .collection("Ledger")
+                            .orderBy("jarNumber")
+                            .snapshots(),
+                        builder: (context, snapshots) {
+                          if (snapshots.data == null)
+                            return CircularProgressIndicator();
+                          for (int i = 0; i < 6; i++) {
+                            _currentAmount[i] =
+                                int.parse(snapshots.data.docs[i]["jarAmount"]);
+                          }
+                          return Container();
+                        }),
                     Align(
                       alignment: Alignment.center,
                       child: Container(
@@ -745,8 +762,25 @@ class _ToDoRouteState extends State<ToDoRoute> with TickerProviderStateMixin {
                             onPressed: () {
                               setState(() {
                                 Navigator.of(context).pop();
-                                // _updateAmount(incomeDialog, autoJar);
+
+                                // _date = DateTime.now();
+                                dateForm =
+                                    DateFormat.yMMMMd().format(DateTime.now());
+                                _time = TimeOfDay.now();
+                                // String month = _date.month.toString();
+                                // if (_date.month < 10) month = "0" + month;
+                                // dateForm = _date.year.toString() +
+                                //     "-" +
+                                //     month +
+                                //     "-" +
+                                //     _date.day.toString() +
+                                //     " 12:00:00.000Z";
+
+                                timeForm = _timeFormatter(_time);
+
+                                _updateAmount(_currentJar);
                                 _createStatement(documentSnapshot["todoTitle"]);
+
                                 // _completedTask(documentSnapshot);
                               });
                             },
@@ -1121,8 +1155,13 @@ class _ToDoRouteState extends State<ToDoRoute> with TickerProviderStateMixin {
                                                           ;
                                                     }
 
-                                                    // _completedTask(
-                                                    //     documentSnapshot);
+                                                    _completedTask(
+                                                        documentSnapshot);
+                                                    deleteTodos(
+                                                        documentSnapshot[
+                                                            "todoTitle"],
+                                                        documentSnapshot[
+                                                            "todoGroupTag"]);
                                                   },
                                                   child: Card(
                                                     color: listColour[int.parse(

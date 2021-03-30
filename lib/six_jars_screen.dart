@@ -337,7 +337,6 @@ class _SixJarsRouteState extends State<SixJarsRoute>
                                               _currentAmount[i] = int.parse(
                                                   snapshots.data.docs[i]
                                                       ["jarAmount"]);
-                                              // print(_currentAmount[i]);
                                             }
                                             return Text(
                                               snapshots.data.docs[_currentJar]
