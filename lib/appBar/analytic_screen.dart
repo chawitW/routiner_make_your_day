@@ -18,6 +18,7 @@ class AnalyticsPage extends StatefulWidget {
 
 class _SettingPageState extends State<AnalyticsPage>
     with TickerProviderStateMixin {
+  bool isShowingMainData = true;
   TabController jarController;
   int _currentJar = 0;
   TabController rangeController;
@@ -139,6 +140,15 @@ class _SettingPageState extends State<AnalyticsPage>
   }
 
   int touchedIndex;
+  List<Color> jarColors = [
+    Color(0xff7FDBDA),
+    Color(0xffFFD5CD),
+    Color(0xffFA7F72),
+    Color(0xffF6F4E6),
+    Color(0xffADE498),
+    Color(0xff8675A9),
+    Color(0xffFDDB3A),
+  ];
 
   List<String> range = [
     "Week",
@@ -305,6 +315,12 @@ class _SettingPageState extends State<AnalyticsPage>
     );
   }
 
+  // _buildGraph() {
+  //   return StatefulBuilder(builder: (context, setState) {
+
+  //   });
+  // }
+
   _buildPieChart() {
     _amountTime = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
     return AspectRatio(
@@ -350,6 +366,8 @@ class _SettingPageState extends State<AnalyticsPage>
       ),
     );
   }
+
+  // FlSpot
 
   _drawPieChart(snapshots, _countDay, i) {
     return StreamBuilder(
@@ -401,7 +419,10 @@ class _SettingPageState extends State<AnalyticsPage>
               ],
             );
           }
-          return Container(width: 0,height: 0,);
+          return Container(
+            width: 0,
+            height: 0,
+          );
         }
       },
     );
@@ -422,6 +443,7 @@ class _SettingPageState extends State<AnalyticsPage>
   @override
   void initState() {
     super.initState();
+    isShowingMainData = true;
     // TODO: implement initState
 
     jarController = TabController(vsync: this, length: 6, initialIndex: 0);
@@ -435,6 +457,283 @@ class _SettingPageState extends State<AnalyticsPage>
     rangeController?.dispose();
     super.dispose();
   }
+
+  LineChartData sampleData2() {
+    return LineChartData(
+      lineTouchData: LineTouchData(
+        enabled: false,
+      ),
+      gridData: FlGridData(
+        show: false,
+      ),
+      titlesData: FlTitlesData(
+        bottomTitles: SideTitles(
+          showTitles: true,
+          reservedSize: 22,
+          getTextStyles: (value) => const TextStyle(
+            color: Color(0xff72719b),
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
+          margin: 10,
+          getTitles: (value) {
+            // switch (value.toInt()) {
+            //   case 2:
+            //     return 'SEPT';
+            //   case 7:
+            //     return 'OCT';
+            //   case 12:
+            //     return 'DEC';
+            // }
+            return '';
+          },
+        ),
+        leftTitles: SideTitles(
+          showTitles: true,
+          getTextStyles: (value) => const TextStyle(
+            color: Color(0xff75729e),
+            fontWeight: FontWeight.bold,
+            fontSize: 14,
+          ),
+          getTitles: (value) {
+            switch (value.toInt()) {
+              case 1:
+                return '1m';
+              case 2:
+                return '2m';
+              case 3:
+                return '3m';
+              case 4:
+                return '5m';
+              case 5:
+                return '6m';
+            }
+            return '';
+          },
+          margin: 8,
+          reservedSize: 30,
+        ),
+      ),
+      borderData: FlBorderData(
+          show: true,
+          border: const Border(
+            bottom: BorderSide(
+              color: Color(0xff4e4965),
+              width: 4,
+            ),
+            left: BorderSide(
+              color: Colors.transparent,
+            ),
+            right: BorderSide(
+              color: Colors.transparent,
+            ),
+            top: BorderSide(
+              color: Colors.transparent,
+            ),
+          )),
+      minX: 0,
+      maxX: 14,
+      maxY: 10100,
+      minY: 0,
+      lineBarsData: linesBarData2(),
+    );
+  }
+
+  List<LineChartBarData> linesBarData2() {
+    return [
+      LineChartBarData(
+        spots: [
+          FlSpot(1, 10000),
+          FlSpot(3, 9500),
+          FlSpot(5, 8100),
+          FlSpot(7, 8500),
+          FlSpot(10, 9200),
+          FlSpot(12, 8200),
+          FlSpot(13, 7100),
+        ],
+        isCurved: true,
+        curveSmoothness: 0,
+        colors: [
+          jarColors[6],
+        ],
+        barWidth: 4,
+        isStrokeCapRound: true,
+        dotData: FlDotData(
+          show: false,
+        ),
+        belowBarData: BarAreaData(
+          show: false,
+        ),
+      ),
+    ];
+  }
+
+  LineChartData sampleData1() {
+    return LineChartData(
+      lineTouchData: LineTouchData(
+        touchTooltipData: LineTouchTooltipData(
+          tooltipBgColor: Colors.blueGrey.withOpacity(0.8),
+        ),
+        touchCallback: (LineTouchResponse touchResponse) {},
+        handleBuiltInTouches: true,
+      ),
+      gridData: FlGridData(
+        show: false,
+      ),
+      titlesData: FlTitlesData(
+        bottomTitles: SideTitles(
+          showTitles: true,
+          reservedSize: 22,
+          getTextStyles: (value) => const TextStyle(
+            color: Color(0xff72719b),
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
+          margin: 10,
+          getTitles: (value) {
+            // switch (value.toInt()) {
+            //   case 2:
+            //     return 'SEPT';
+            //   case 7:
+            //     return 'OCT';
+            //   case 12:
+            //     return 'DEC';
+            // }
+            return '';
+          },
+        ),
+        leftTitles: SideTitles(
+          showTitles: true,
+          getTextStyles: (value) => const TextStyle(
+            color: Color(0xff75729e),
+            fontWeight: FontWeight.bold,
+            fontSize: 14,
+          ),
+          getTitles: (value) {
+            switch (value.toInt()) {
+              case 2000:
+                return '2k';
+              case 4000:
+                return '4k';
+              case 6000:
+                return '6k';
+              case 1000:
+                return '1k';
+              case 5000:
+                return '5k';
+              case 3000:
+                return '3k';
+            }
+            return '';
+          },
+          margin: 8,
+          reservedSize: 30,
+        ),
+      ),
+      borderData: FlBorderData(
+        show: true,
+        border: const Border(
+          bottom: BorderSide(
+            color: Color(0xff4e4965),
+            width: 4,
+          ),
+          left: BorderSide(
+            color: Colors.transparent,
+          ),
+          right: BorderSide(
+            color: Colors.transparent,
+          ),
+          top: BorderSide(
+            color: Colors.transparent,
+          ),
+        ),
+      ),
+      minX: 0,
+      maxX: 120,
+      maxY: 6000,
+      minY: 0,
+      lineBarsData: linesBarData1(),
+    );
+  }
+
+  List<LineChartBarData> linesBarData1() {
+    final List<LineChartBarData> lineChartBarData = [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ];
+    for (int i = 0; i < 7; i++) {
+      lineChartBarData[i] = LineChartBarData(
+        spots: [
+          FlSpot((i / 2 + 1) * 10.0, 2000),
+          FlSpot((i / 2 + 2) * 10.0, 4000),
+          FlSpot((i / 2 + 3) * 10.0, 6000),
+          FlSpot((i / 2 + 4) * 10.0, 4000),
+          FlSpot((i / 2 + 5) * 10.0, 2000),
+          FlSpot((i / 2 + 6) * 10.0, 1000),
+          // FlSpot((i / 2 + 7) * 10.0, 2000),
+        ],
+        isCurved: true,
+        colors: [jarColors[i]],
+        barWidth: 6,
+        isStrokeCapRound: true,
+        dotData: FlDotData(
+          show: false,
+        ),
+        belowBarData: BarAreaData(
+          show: false,
+        ),
+      );
+    }
+    return [
+      lineChartBarData[0],
+      lineChartBarData[1],
+      lineChartBarData[2],
+      lineChartBarData[3],
+      lineChartBarData[4],
+      lineChartBarData[5],
+      // lineChartBarData[6],
+    ];
+  }
+
+  
+
+  List<LineChartBarData> linesBarData3() {
+    final List<LineChartBarData> lineChartBarData = [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ];
+
+    lineChartBarData[6] = LineChartBarData(
+      spots: [
+        FlSpot((6 / 2 + 1) * 10.0, 2000),
+      ],
+      isCurved: true,
+      colors: [jarColors[6]],
+      barWidth: 6,
+      isStrokeCapRound: true,
+      dotData: FlDotData(
+        show: false,
+      ),
+      belowBarData: BarAreaData(
+        show: false,
+      ),
+    );
+    return [
+      lineChartBarData[6],
+    ];
+  }
+
+  
 
   @override
   Widget build(BuildContext context) {
@@ -475,7 +774,104 @@ class _SettingPageState extends State<AnalyticsPage>
                   // initiallyExpanded: true,
                   title: Text("Financial graph"),
                   children: [
-                    _buildFinancialGraph(),
+                    // _buildFinancialGraph(),
+                    AspectRatio(
+                      aspectRatio: 1.23,
+                      child: Container(
+                        margin: EdgeInsets.all(10),
+                        decoration: const BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(18)),
+                          gradient: LinearGradient(
+                            colors: [
+                              Color(0xff2c274c),
+                              Color(0xff46426c),
+                            ],
+                            begin: Alignment.bottomCenter,
+                            end: Alignment.topCenter,
+                          ),
+                        ),
+                        child: Stack(
+                          children: <Widget>[
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: <Widget>[
+                                const SizedBox(
+                                  height: 37,
+                                ),
+                                const SizedBox(
+                                  height: 4,
+                                ),
+                                const Text(
+                                  'Summary financial',
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 28,
+                                      fontWeight: FontWeight.bold,
+                                      letterSpacing: 2),
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(
+                                  height: 37,
+                                ),
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(
+                                        right: 16.0, left: 6.0),
+                                    child: LineChart(
+                                      isShowingMainData
+                                          ? sampleData1()
+                                          : sampleData2(),
+                                      
+                                      swapAnimationDuration:
+                                          const Duration(milliseconds: 250),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(
+                                  height: 15,
+                                ),
+                              ],
+                            ),
+                            IconButton(
+                              icon: isShowingMainData
+                                  ? Text(
+                                      "All",
+                                      style: TextStyle(color: Colors.white),
+                                    )
+                                  : Text("Each",
+                                      style: TextStyle(color: Colors.white)),
+                              onPressed: () {
+                                setState(() {
+                                  print(isShowingMainData);
+                                  isShowingMainData = !isShowingMainData;
+                                });
+                              },
+                            ),
+                            Positioned(
+                              bottom: 0,
+                              left: 0,
+                              right: 0,
+                              child: Container(
+                                  child: Row(
+                                children: [
+                                  for (int i = 0; i < 6; i++)
+                                    Expanded(
+                                        child: IconButton(
+                                            onPressed: () {},
+                                            icon: Icon(
+                                              jarIcon[i],
+                                              color: jarColors[i],
+                                            )))
+                                ],
+                              )),
+                            ),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -486,6 +882,7 @@ class _SettingPageState extends State<AnalyticsPage>
                   title: Text("Time boxing pie chart"),
                   children: [
                     _buildPieChart(),
+                    // _buildGraph(),
                     Card(
                       color: Color(0xffF6F4E6),
                       margin: EdgeInsets.only(
