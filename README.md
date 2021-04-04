@@ -20,5 +20,5 @@ After installing Flutter, set up the Firebase by following instruction below:
 
 Then open this project in terminal and plug debugging device then run "flutter run"
 
-## P.S.
+### P.S.
 Firebase mock up of this project is available until 31 May 2021. No need to setting up the Firebase before 31 May 2021.
