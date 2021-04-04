@@ -11,7 +11,7 @@ For help getting started with Flutter, view our
 samples, guidance on mobile development, and a full API reference.
 
 After installing Flutter, set up the Firebase by following instruction below:
-1. Go to https://firebase.google.com/ then login.
+1. Go to [Firebase](https://firebase.google.com/) then login.
 2. "Add project" to create Firebase project.
 3. Go to "Android" and follow the instructions to link Flutter project to Firebase.
 4. Go to "iOS" and follow the instructions to link Flutter project to Firebase.
