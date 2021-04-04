@@ -660,12 +660,64 @@ class _SettingPageState extends State<AnalyticsPage>
         ),
       ),
       minX: 0,
-      maxX: 120,
-      maxY: 6000,
+      maxX: 12,
+      maxY: jarSelected[0]? 6000:1000,
       minY: 0,
       lineBarsData: linesBarData1(),
     );
   }
+
+  List jarLines = [
+    [
+      FlSpot(0, 3500),
+      FlSpot(2, 3400),
+      FlSpot(4, 3000),
+      FlSpot(6, 5500),
+      FlSpot(8, 4800),
+      FlSpot(10, 4000),
+    ],
+    [
+      FlSpot(0, 600),
+      FlSpot(2, 400),
+      FlSpot(4, 400),
+      FlSpot(6, 600),
+      FlSpot(8, 600),
+      FlSpot(10, 300),
+    ],
+    [
+      FlSpot(0, 600),
+      FlSpot(2, 600),
+      FlSpot(4, 600),
+      FlSpot(6, 800),
+      FlSpot(8, 800),
+      FlSpot(10, 800),
+    ],
+    [
+      FlSpot(0, 600),
+      FlSpot(2, 100),
+      FlSpot(4, 100),
+      FlSpot(6, 300),
+      FlSpot(8, 300),
+      FlSpot(10, 300),
+    ],
+    [
+      FlSpot(0, 600),
+      FlSpot(2, 100),
+      FlSpot(4, 100),
+      FlSpot(6, 300),
+      FlSpot(8, 200),
+      FlSpot(10, 0),
+    ],
+    [
+      FlSpot(0, 300),
+      FlSpot(2, 300),
+      FlSpot(4, 300),
+      FlSpot(6, 500),
+      FlSpot(8, 200),
+      FlSpot(10, 0),
+    ]
+  ];
+
 
   List<LineChartBarData> linesBarData1() {
     final List<LineChartBarData> lineChartBarData = [
@@ -677,17 +729,10 @@ class _SettingPageState extends State<AnalyticsPage>
       null,
       null
     ];
-    for (int i = 0; i < 7; i++) {
+    for (int i = 0; i < 6; i++) {
       if (jarSelected[i]) {
         lineChartBarData[i] = LineChartBarData(
-          spots: [
-            FlSpot((i / 2 + 1) * 10.0, 2000),
-            FlSpot((i / 2 + 2) * 10.0, 4000),
-            FlSpot((i / 2 + 3) * 10.0, 6000),
-            FlSpot((i / 2 + 4) * 10.0, 4000),
-            FlSpot((i / 2 + 5) * 10.0, 2000),
-            FlSpot((i / 2 + 6) * 10.0, 1000),
-          ],
+          spots: jarLines[i],
           isCurved: true,
           colors: [jarColors[i]],
           barWidth: 6,
@@ -702,8 +747,8 @@ class _SettingPageState extends State<AnalyticsPage>
       } else {
         lineChartBarData[i] = LineChartBarData(
           spots: [
-            FlSpot(0,0),
-            FlSpot(0,0),
+            FlSpot(0, 0),
+            FlSpot(0, 0),
           ],
           isCurved: true,
           colors: [Colors.black87],
