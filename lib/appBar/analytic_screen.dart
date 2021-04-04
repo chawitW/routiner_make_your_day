@@ -150,6 +150,16 @@ class _SettingPageState extends State<AnalyticsPage>
     Color(0xffFDDB3A),
   ];
 
+  List<bool> jarSelected = [
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+  ];
+
   List<String> range = [
     "Week",
     "Month",
@@ -297,6 +307,7 @@ class _SettingPageState extends State<AnalyticsPage>
             controller: jarController,
             tabs: <Tab>[
               for (int i = 0; i < jarIcon.length; i++)
+                // if(isLineChecked)
                 Tab(
                     icon: Icon(jarIcon[i],
                         color: _currentJar == i
@@ -497,16 +508,16 @@ class _SettingPageState extends State<AnalyticsPage>
           ),
           getTitles: (value) {
             switch (value.toInt()) {
-              case 1:
-                return '1m';
-              case 2:
-                return '2m';
-              case 3:
-                return '3m';
-              case 4:
-                return '5m';
-              case 5:
-                return '6m';
+              case 2000:
+                return '2k';
+              case 4000:
+                return '4k';
+              case 6000:
+                return '6k';
+              case 8000:
+                return '8k';
+              case 10000:
+                return '10k';
             }
             return '';
           },
@@ -543,11 +554,11 @@ class _SettingPageState extends State<AnalyticsPage>
     return [
       LineChartBarData(
         spots: [
-          FlSpot(1, 10000),
-          FlSpot(3, 9500),
-          FlSpot(5, 8100),
-          FlSpot(7, 8500),
-          FlSpot(10, 9200),
+          FlSpot(1, 6000),
+          FlSpot(3, 5400),
+          FlSpot(5, 4400),
+          FlSpot(7, 9200),
+          FlSpot(10, 8600),
           FlSpot(12, 8200),
           FlSpot(13, 7100),
         ],
@@ -667,28 +678,47 @@ class _SettingPageState extends State<AnalyticsPage>
       null
     ];
     for (int i = 0; i < 7; i++) {
-      lineChartBarData[i] = LineChartBarData(
-        spots: [
-          FlSpot((i / 2 + 1) * 10.0, 2000),
-          FlSpot((i / 2 + 2) * 10.0, 4000),
-          FlSpot((i / 2 + 3) * 10.0, 6000),
-          FlSpot((i / 2 + 4) * 10.0, 4000),
-          FlSpot((i / 2 + 5) * 10.0, 2000),
-          FlSpot((i / 2 + 6) * 10.0, 1000),
-          // FlSpot((i / 2 + 7) * 10.0, 2000),
-        ],
-        isCurved: true,
-        colors: [jarColors[i]],
-        barWidth: 6,
-        isStrokeCapRound: true,
-        dotData: FlDotData(
-          show: false,
-        ),
-        belowBarData: BarAreaData(
-          show: false,
-        ),
-      );
+      if (jarSelected[i]) {
+        lineChartBarData[i] = LineChartBarData(
+          spots: [
+            FlSpot((i / 2 + 1) * 10.0, 2000),
+            FlSpot((i / 2 + 2) * 10.0, 4000),
+            FlSpot((i / 2 + 3) * 10.0, 6000),
+            FlSpot((i / 2 + 4) * 10.0, 4000),
+            FlSpot((i / 2 + 5) * 10.0, 2000),
+            FlSpot((i / 2 + 6) * 10.0, 1000),
+          ],
+          isCurved: true,
+          colors: [jarColors[i]],
+          barWidth: 6,
+          isStrokeCapRound: true,
+          dotData: FlDotData(
+            show: false,
+          ),
+          belowBarData: BarAreaData(
+            show: false,
+          ),
+        );
+      } else {
+        lineChartBarData[i] = LineChartBarData(
+          spots: [
+            FlSpot(0,0),
+            FlSpot(0,0),
+          ],
+          isCurved: true,
+          colors: [Colors.black87],
+          barWidth: 6,
+          isStrokeCapRound: true,
+          dotData: FlDotData(
+            show: false,
+          ),
+          belowBarData: BarAreaData(
+            show: false,
+          ),
+        );
+      }
     }
+
     return [
       lineChartBarData[0],
       lineChartBarData[1],
@@ -696,11 +726,8 @@ class _SettingPageState extends State<AnalyticsPage>
       lineChartBarData[3],
       lineChartBarData[4],
       lineChartBarData[5],
-      // lineChartBarData[6],
     ];
   }
-
-  
 
   List<LineChartBarData> linesBarData3() {
     final List<LineChartBarData> lineChartBarData = [
@@ -732,8 +759,6 @@ class _SettingPageState extends State<AnalyticsPage>
       lineChartBarData[6],
     ];
   }
-
-  
 
   @override
   Widget build(BuildContext context) {
@@ -821,7 +846,6 @@ class _SettingPageState extends State<AnalyticsPage>
                                       isShowingMainData
                                           ? sampleData1()
                                           : sampleData2(),
-                                      
                                       swapAnimationDuration:
                                           const Duration(milliseconds: 250),
                                     ),
@@ -847,24 +871,32 @@ class _SettingPageState extends State<AnalyticsPage>
                                 });
                               },
                             ),
-                            Positioned(
-                              bottom: 0,
-                              left: 0,
-                              right: 0,
-                              child: Container(
-                                  child: Row(
-                                children: [
-                                  for (int i = 0; i < 6; i++)
-                                    Expanded(
-                                        child: IconButton(
-                                            onPressed: () {},
-                                            icon: Icon(
-                                              jarIcon[i],
-                                              color: jarColors[i],
-                                            )))
-                                ],
-                              )),
-                            ),
+                            if (isShowingMainData)
+                              Positioned(
+                                bottom: 0,
+                                left: 0,
+                                right: 0,
+                                child: Container(
+                                    child: Row(
+                                  children: [
+                                    for (int i = 0; i < 6; i++)
+                                      Expanded(
+                                          child: IconButton(
+                                              onPressed: () {
+                                                setState(() {
+                                                  jarSelected[i] =
+                                                      !jarSelected[i];
+                                                });
+                                              },
+                                              icon: Icon(
+                                                jarIcon[i],
+                                                color: jarSelected[i]
+                                                    ? jarColors[i]
+                                                    : Colors.grey,
+                                              )))
+                                  ],
+                                )),
+                              ),
                             const SizedBox(
                               height: 10,
                             ),
